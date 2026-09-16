@@ -231,7 +231,7 @@
     </div>
     <div role="listitem">
       <span class="label">Test suite</span>
-      <span class="big">107 <small>passed</small></span>
+      <span class="big">110 <small>passed</small></span>
       <span class="note">fde-mcp · 0 failing</span>
     </div>
     <div role="listitem">
@@ -357,15 +357,16 @@
       <div class="panel">
         <h3>Verification log</h3>
         <pre class="log"><span class="p">&gt;</span> uv run pytest -q
-<span class="g">107 passed</span> in 2.81s
+<span class="g">110 passed</span> in 2.79s
   <span class="p">24 github    · mocked 401/403/404/422/5xx/timeout</span>
   <span class="p">24 sqlite    · read-only path, locks, corrupt file</span>
   <span class="p">24 telegram  · dry-run, 429 retry_after, token leaks</span>
   <span class="p"> 8 fallback  · transient queues, permanent surfaces</span>
+  <span class="p"> 3 scripts   · ASCII-safe on a cp1252 console</span>
   <span class="p">27 server    · policy, envelope, docs contract</span>
 
 <span class="p">&gt;</span> uv run python scripts/demo.py
-[oncall] db_recent_deployments -&gt; <span class="g">3 rows</span>
+[oncall] db_recent_deployments -&gt; <span class="g">3 rows</span>   <span class="p">(from a clean clone)</span>
 [oncall] db_log_incident       -&gt; <span class="g">incident id 1</span>
 [oncall] telegram_send_alert   -&gt; dry_run, nothing sent
 [oncall] github_list_open_prs  -&gt; not_configured (degraded, no crash)</pre>
@@ -406,8 +407,8 @@
       </div>
       <div class="check">
         <h3>Runs from a clean clone in one command</h3>
-        <span class="pill warn">Partial</span>
-        <p><code>uv sync</code> then <code>uv run fde-mcp</code>. Not yet re-verified from a fresh clone.</p>
+        <span class="pill ok">Met</span>
+        <p>Verified by cloning the public repo to a temp directory: <code>uv sync</code>, 110 passed, and <code>demo.py</code> walks a full incident with no credentials. That check found a real bug — box-drawing characters crashed the demo on a cp1252 console.</p>
       </div>
       <div class="check">
         <h3>A real eval with committed results</h3>
