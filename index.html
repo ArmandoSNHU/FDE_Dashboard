@@ -1,5 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Armando Gomez · FDE Field Log</title>
 <meta name="description" content="Forward Deployed Engineer portfolio tracker for Armando Gomez: projects, verification evidence, and reviewer checklist.">
+<meta property="og:title" content="Armando Gomez · FDE Field Log">
+<meta property="og:description" content="Forward Deployed Engineer portfolio: role-scoped MCP tooling, per-source failure isolation, and the evidence behind each claim.">
+<meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -198,6 +206,8 @@
     @keyframes crawl { to { background-position: 22.6px 0; } }
   }
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <header>
@@ -221,7 +231,7 @@
     </div>
     <div role="listitem">
       <span class="label">Test suite</span>
-      <span class="big">27 <small>passed</small></span>
+      <span class="big">75 <small>passed</small></span>
       <span class="note">fde-mcp · 0 failing</span>
     </div>
     <div role="listitem">
@@ -258,7 +268,7 @@
         </div>
         <div>
           <div class="stages" aria-label="Stage 2 of 5: Build in progress"><span class="done"></span><span class="now"></span><span></span><span></span><span></span></div>
-          <p class="stage-caption">Scaffold done. Connector bodies next.</p>
+          <p class="stage-caption">GitHub and SQLite connectors done. Telegram next.</p>
         </div>
         <span class="state pill active">Building</span>
       </article>
@@ -347,7 +357,10 @@
       <div class="panel">
         <h3>Verification log</h3>
         <pre class="log"><span class="p">&gt;</span> uv run pytest -q
-<span class="g">27 passed</span> in 1.27s
+<span class="g">75 passed</span> in 2.48s
+  <span class="p">24 github  · mocked 401/403/404/422/5xx/timeout</span>
+  <span class="p">24 sqlite  · read-only path, locks, corrupt file</span>
+  <span class="p">27 server  · policy, envelope, docs contract</span>
 
 <span class="p">&gt;</span> uv run python scripts/smoke_stdio.py
 [viewer] tools: 4 of 6
@@ -360,9 +373,9 @@
         <p class="label">Blue = retryable, carries retry_after_s</p>
         <h3>Next up</h3>
         <ol class="next">
-          <li>GitHub response classifier against mocked 401 / 403 / 429 / 5xx</li>
-          <li>SQLite read-only path and locked-DB handling</li>
-          <li>Telegram dry-run, then the outbox fallback</li>
+          <li>Telegram dry-run path, then the live send behind mocks</li>
+          <li>Outbox fallback: an undelivered alert lands in SQLite, not the void</li>
+          <li>First ADR: role per process vs. per-request identity</li>
         </ol>
       </div>
     </div>
@@ -387,7 +400,7 @@
       <div class="check">
         <h3>What happens when things go wrong</h3>
         <span class="pill warn">Partial</span>
-        <p>Structured error envelope and access guard are tested. Per-source classifiers are still skeletons.</p>
+        <p>GitHub and SQLite classify every documented failure under test, including rate-limit delays and locked databases. Telegram is still a skeleton.</p>
       </div>
       <div class="check">
         <h3>Runs from a clean clone in one command</h3>
@@ -412,3 +425,6 @@
     <span class="mono">Source of truth: <a href="https://github.com/ArmandoSNHU/FDE_Dashboard/blob/main/STATE.md">STATE.md</a> · project 01 in <a href="https://github.com/ArmandoSNHU/FDE_Dashboard/tree/main/projects/01-mcp-server">projects/01-mcp-server</a></span>
   </footer>
 </div>
+
+</body>
+</html>

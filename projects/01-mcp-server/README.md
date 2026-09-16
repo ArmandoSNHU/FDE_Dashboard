@@ -102,19 +102,21 @@ uv run pytest -q                          # test
 uv run fde-mcp                            # run (stdio MCP server, role from FDE_MCP_ROLE)
 ```
 
-Register with an MCP client (for example, Claude Desktop's `claude_desktop_config.json`):
+Register it with any MCP client that speaks stdio. Most use this shape of config:
 
 ```json
 {
   "mcpServers": {
     "fde-viewer": {
       "command": "uv",
-      "args": ["--directory", "D:/FDE_Dash/projects/01-mcp-server", "run", "fde-mcp"],
-      "env": { "FDE_MCP_ROLE": "viewer", "GITHUB_TOKEN": "...", "FDE_DB_PATH": "D:/FDE_Dash/data/ops.db" }
+      "args": ["--directory", "/path/to/projects/01-mcp-server", "run", "fde-mcp"],
+      "env": { "FDE_MCP_ROLE": "viewer", "GITHUB_TOKEN": "...", "FDE_DB_PATH": "/path/to/data/ops.db" }
     }
   }
 }
 ```
+
+Register it twice with different `FDE_MCP_ROLE` values to give one client read-only access and another the full surface.
 
 ## Layout
 
