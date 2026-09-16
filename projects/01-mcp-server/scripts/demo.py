@@ -31,7 +31,9 @@ INSERT INTO deployments (customer, service, version, environment, deployed_at) V
   ('acme', 'worker', '0.9.2', 'staging', '2026-09-11T08:15:00Z');
 """
 
-RULE = "─" * 72
+# ASCII only: this script must not depend on the console's code page. A Windows
+# console defaulting to cp1252 raises UnicodeEncodeError on box-drawing glyphs.
+RULE = "-" * 72
 
 
 def build_demo_db(directory: Path) -> Path:
@@ -44,7 +46,7 @@ def build_demo_db(directory: Path) -> Path:
 
 def show(step: str, result) -> dict:
     payload = json.loads(result.content[0].text)
-    print(f"\n{RULE}\n▸ {step}\n{RULE}")
+    print(f"\n{RULE}\n> {step}\n{RULE}")
     print(json.dumps(payload, indent=2)[:1200])
     return payload
 
@@ -66,7 +68,7 @@ async def main() -> None:
             await session.initialize()
 
             tools = [t.name for t in (await session.list_tools()).tools]
-            print(f"\n{RULE}\n▸ Tools visible to role 'oncall'\n{RULE}\n" + "\n".join(f"  · {t}" for t in sorted(tools)))
+            print(f"\n{RULE}\n> Tools visible to role 'oncall'\n{RULE}\n" + "\n".join(f"  - {t}" for t in sorted(tools)))
 
             show("Health: which sources are usable right now", await session.call_tool("server_health", {}))
             show(
