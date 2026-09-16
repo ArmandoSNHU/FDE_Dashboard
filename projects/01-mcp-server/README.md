@@ -2,7 +2,7 @@
 
 Project 1 of the [FDE portfolio](../../README.md). Run commands from this directory.
 
-**Author:** Armando Gomez · **Status:** working — all three connectors implemented, 107 tests passing, `scripts/demo.py` runs the whole thing with no credentials
+**Author:** Armando Gomez · **Status:** working — all three connectors implemented, 160 tests passing, `scripts/demo.py` runs the whole thing with no credentials
 
 ## The problem
 
@@ -98,7 +98,7 @@ The mapping for each source is documented at the top of its connector module in 
 ```powershell
 uv sync                                   # setup
 uv run python scripts/demo.py             # demo: full scenario, no credentials needed
-uv run pytest -q                          # test: 107 passed
+uv run pytest -q                          # test: 160 passed
 uv run fde-mcp                            # run (stdio MCP server, role from FDE_MCP_ROLE)
 ```
 
@@ -132,6 +132,7 @@ src/fde_mcp/
   server.py                 build_server(): policy-filtered registration + guarded() error envelope
   config.py                 Settings.from_env()
   errors.py                 ErrorKind, SourceError: the shared failure vocabulary
+  untrusted.py              third-party text: strip what hides, cap, label provenance
   access/policy.py          AccessPolicy: deny-by-default scope checks
   connectors/               one module per source, MCP-agnostic
   tools/registry.py         TOOL_SPECS (surface of record) + thin handlers
