@@ -3,209 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
 <title>Armando Gomez · FDE Field Log</title>
-<meta name="description" content="Forward Deployed Engineer portfolio tracker for Armando Gomez: projects, verification evidence, and reviewer checklist.">
+<meta name="description" content="Forward Deployed Engineer portfolio for Armando Gomez: role-scoped MCP tooling, per-source failure isolation, prompt-injection defences, and the evidence behind every claim.">
 <meta property="og:title" content="Armando Gomez · FDE Field Log">
-<meta property="og:description" content="Forward Deployed Engineer portfolio: role-scoped MCP tooling, per-source failure isolation, and the evidence behind each claim.">
+<meta property="og:description" content="Role-scoped MCP tooling, per-source failure isolation, and prompt-injection defences — with the test run behind every number.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://armandosnhu.github.io/FDE_Dashboard/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
-<style>
-  :root {
-    --ground: #eef1f4;
-    --surface: #ffffff;
-    --sunken: #e4e9ee;
-    --ink: #15202b;
-    --ink-2: #4a5866;
-    --ink-3: #7a8794;
-    --rule: #d3dae1;
-    --accent: #2a57c0;
-    --accent-soft: #dde6f8;
-    --ok: #237148;
-    --ok-soft: #dcefe3;
-    --warn: #9a6512;
-    --warn-soft: #f6ead3;
-    --idle: #6b7785;
-    --idle-soft: #e6eaee;
-    --code-ground: #15202b;
-    --code-ink: #d7e0e9;
-    --code-dim: #8796a6;
-    --code-ok: #7fd1a0;
-    --display: "IBM Plex Sans Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
-    --body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
-    --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --ground: #0e141a;
-      --surface: #151d25;
-      --sunken: #1b252f;
-      --ink: #e3e9ef;
-      --ink-2: #a9b6c3;
-      --ink-3: #7d8b99;
-      --rule: #273340;
-      --accent: #86a8f2;
-      --accent-soft: #1f2d4a;
-      --ok: #7fcf9f;
-      --ok-soft: #173327;
-      --warn: #e2b566;
-      --warn-soft: #3a2d14;
-      --idle: #9aa6b2;
-      --idle-soft: #212b35;
-      --code-ground: #0a0f14;
-    }
-  }
-  :root[data-theme="dark"] {
-    --ground: #0e141a;
-    --surface: #151d25;
-    --sunken: #1b252f;
-    --ink: #e3e9ef;
-    --ink-2: #a9b6c3;
-    --ink-3: #7d8b99;
-    --rule: #273340;
-    --accent: #86a8f2;
-    --accent-soft: #1f2d4a;
-    --ok: #7fcf9f;
-    --ok-soft: #173327;
-    --warn: #e2b566;
-    --warn-soft: #3a2d14;
-    --idle: #9aa6b2;
-    --idle-soft: #212b35;
-    --code-ground: #0a0f14;
-  }
-
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--ground);
-    color: var(--ink);
-    font: 15px/1.55 var(--body);
-    padding-inline: 20px;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 1160px; margin: 0 auto; padding-block: 36px 64px; display: grid; gap: 28px; }
-  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
-  p { margin: 0; }
-  a { color: var(--accent); text-underline-offset: 3px; }
-  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
-  code, .mono { font-family: var(--mono); font-size: 0.86em; }
-  .label {
-    font: 500 11px/1.2 var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-    color: var(--ink-3);
-  }
-
-  /* Header */
-  header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px; padding-bottom: 22px; border-bottom: 1px solid var(--rule); }
-  .who { display: grid; gap: 6px; }
-  .who h1 { font-size: clamp(30px, 4.4vw, 44px); font-weight: 700; line-height: 1.05; }
-  .who p { color: var(--ink-2); max-width: 60ch; }
-  .stamp { display: grid; gap: 4px; text-align: right; }
-  .stamp .mono { color: var(--ink-2); font-size: 13px; }
-
-  /* Summary strip */
-  .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
-  .summary > div { padding: 16px 20px; display: grid; gap: 4px; border-left: 1px solid var(--rule); }
-  .summary > div:first-child { border-left: 0; }
-  .summary .big { font: 600 28px/1.1 var(--display); font-variant-numeric: tabular-nums; }
-  .summary .big small { font-size: 16px; color: var(--ink-3); font-weight: 500; }
-  .summary .note { color: var(--ink-2); font-size: 13px; }
-
-  /* Pills */
-  .pill { display: inline-flex; align-items: center; gap: 6px; font: 500 11.5px/1 var(--mono); letter-spacing: 0.02em; padding: 5px 8px; border-radius: 3px; white-space: nowrap; }
-  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-  .pill.ok { color: var(--ok); background: var(--ok-soft); }
-  .pill.warn { color: var(--warn); background: var(--warn-soft); }
-  .pill.idle { color: var(--idle); background: var(--idle-soft); }
-  .pill.active { color: var(--accent); background: var(--accent-soft); }
-
-  section { display: grid; gap: 14px; }
-  .section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; }
-  .section-head h2 { font-size: 22px; font-weight: 600; }
-  .section-head p { color: var(--ink-3); font-size: 13px; }
-
-  /* Project track */
-  .track { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
-  .stages-legend, .project { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 2fr) 150px; gap: 20px; align-items: center; padding: 16px 20px; }
-  .stages-legend { padding-block: 10px; border-bottom: 1px solid var(--rule); background: var(--sunken); border-radius: 6px 6px 0 0; }
-  .stages-legend .names { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
-  .project + .project { border-top: 1px solid var(--rule); }
-  .project h3 { font-size: 17px; font-weight: 600; }
-  .project .desc { color: var(--ink-2); font-size: 13.5px; margin-top: 2px; }
-  .project .src { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
-  .stages { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
-  .stages span { height: 8px; border-radius: 2px; background: var(--idle-soft); }
-  .stages span.done { background: var(--ok); }
-  .stages span.now { background: repeating-linear-gradient(135deg, var(--accent) 0 4px, var(--accent-soft) 4px 8px); }
-  .stage-caption { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
-  .project .state { justify-self: end; }
-
-  /* Featured project */
-  .feature { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
-  .panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; display: grid; gap: 14px; }
-  .panel h3 { font-size: 18px; font-weight: 600; }
-  .panel > p { color: var(--ink-2); max-width: 66ch; }
-  .scroll { overflow-x: auto; }
-  table { border-collapse: collapse; width: 100%; font-size: 13px; }
-  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--rule); white-space: nowrap; }
-  thead th { font: 500 11px/1.2 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
-  tbody th { font-weight: 500; }
-  tbody th code { color: var(--ink); }
-  td.scope { color: var(--ink-3); font-family: var(--mono); font-size: 12px; }
-  td.cell { text-align: center; width: 76px; }
-  thead th.cell { text-align: center; }
-  .yes { display: inline-block; width: 12px; height: 12px; border-radius: 2px; background: var(--ok); }
-  .no { display: inline-block; width: 12px; height: 2px; background: var(--rule); vertical-align: middle; }
-  tr.effect th code { color: var(--warn); }
-
-  .log { background: var(--code-ground); color: var(--code-ink); border-radius: 5px; padding: 14px 16px; font: 12.5px/1.65 var(--mono); overflow-x: auto; white-space: pre; margin: 0; }
-  .log .p { color: var(--code-dim); }
-  .log .g { color: var(--code-ok); }
-
-  .kinds { display: flex; flex-wrap: wrap; gap: 6px; }
-  .kinds code { background: var(--sunken); border: 1px solid var(--rule); padding: 3px 7px; border-radius: 3px; font-size: 12px; color: var(--ink-2); }
-  .kinds code.retry { color: var(--accent); border-color: var(--accent-soft); background: var(--accent-soft); }
-
-  ol.next { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--ink-2); }
-  ol.next li::marker { font-family: var(--mono); color: var(--ink-3); }
-
-  /* Checklist */
-  .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
-  .check { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 16px 20px; border-top: 1px solid var(--rule); }
-  .check:nth-child(-n+2) { border-top: 0; }
-  .check:nth-child(even) { border-left: 1px solid var(--rule); }
-  .check h3 { font: 600 15px/1.35 var(--body); }
-  .check p { grid-column: 1 / -1; color: var(--ink-2); font-size: 13px; }
-
-  footer { color: var(--ink-3); font-size: 12.5px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; border-top: 1px solid var(--rule); padding-top: 16px; }
-
-  @media (max-width: 900px) {
-    .feature { grid-template-columns: 1fr; }
-    .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .summary > div:nth-child(3) { border-left: 0; }
-    .summary > div:nth-child(n+3) { border-top: 1px solid var(--rule); }
-  }
-  @media (max-width: 720px) {
-    .stages-legend { display: none; }
-    .project { grid-template-columns: 1fr; gap: 10px; }
-    .project .state { justify-self: start; grid-row: 1; }
-    .checks { grid-template-columns: 1fr; }
-    .check:nth-child(2) { border-top: 1px solid var(--rule); }
-    .check:nth-child(even) { border-left: 0; }
-    .stamp { text-align: left; }
-  }
-  @media (max-width: 440px) {
-    .summary { grid-template-columns: 1fr; }
-    .summary > div { border-left: 0; }
-    .summary > div + div { border-top: 1px solid var(--rule); }
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .stages span.now { animation: crawl 1.6s linear infinite; background-size: 22.6px 100%; }
-    @keyframes crawl { to { background-position: 22.6px 0; } }
-  }
-</style>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/dashboard.css">
 </head>
 <body>
 
@@ -214,37 +23,112 @@
     <div class="who">
       <span class="label">Forward Deployed Engineer · portfolio</span>
       <h1>Armando Gomez</h1>
-      <p>Five pieces of evidence for production thinking: integrations that fail safely, evals that aren't vibes, and write-ups that defend the decisions. Statuses reflect what's verified in the repo, not what's planned.</p>
+      <p>Integrations that fail safely in someone else's environment: who is allowed to call what, what happens when a source dies, and what a system does when the data it reads is written by an attacker. Every figure on this page is produced by a command, not typed in.</p>
     </div>
     <div class="stamp">
-      <span class="label">Last verified</span>
-      <span class="mono">2026-09-15 · uv run pytest -q</span>
+      <span id="live-status" class="live unknown"><span class="beacon"></span><span>loading…</span></span>
+      <span class="mono" id="stamp-commit">—</span>
       <a class="mono" href="https://github.com/ArmandoSNHU/FDE_Dashboard">github.com/ArmandoSNHU/FDE_Dashboard</a>
     </div>
   </header>
 
+  <p class="notice" id="notice" hidden></p>
+
   <div class="summary" role="list">
-    <div role="listitem">
-      <span class="label">Projects in flight</span>
-      <span class="big">1 <small>/ 5</small></span>
-      <span class="note">MCP server scaffolded</span>
-    </div>
-    <div role="listitem">
+    <div role="listitem" id="tile-tests">
       <span class="label">Test suite</span>
-      <span class="big">110 <small>passed</small></span>
-      <span class="note">fde-mcp · 0 failing</span>
+      <span class="big">—</span>
+      <span class="note">loading</span>
+    </div>
+    <div role="listitem" id="tile-surface">
+      <span class="label">Tool surface</span>
+      <span class="big">—</span>
+      <span class="note">loading</span>
+    </div>
+    <div role="listitem" id="tile-sideeffects">
+      <span class="label">Side effects</span>
+      <span class="big">—</span>
+      <span class="note">loading</span>
     </div>
     <div role="listitem">
-      <span class="label">Reviewer checklist</span>
-      <span class="big">4 <small>/ 6 met</small></span>
-      <span class="note">2 not started · 0 partial</span>
-    </div>
-    <div role="listitem">
-      <span class="label">Write-ups</span>
-      <span class="big">0 <small>/ 2</small></span>
-      <span class="note">ADR + post-mortem templates ready</span>
+      <span class="label">Portfolio</span>
+      <span class="big">1 <small>/ 5 built</small></span>
+      <span class="note">2 write-ups queued, 2 projects not started</span>
     </div>
   </div>
+
+  <section aria-labelledby="access-h">
+    <div class="section-head">
+      <h2 id="access-h">Who can call what</h2>
+      <p>Pick a role — the server really does register only these tools for it</p>
+    </div>
+    <div class="panel">
+      <div class="toggles" id="role-toggles" role="group" aria-label="Choose a role"></div>
+      <div class="role-summary" id="role-summary"></div>
+      <div class="scroll">
+        <table>
+          <caption class="label table-caption">Tool surface for the selected role</caption>
+          <thead>
+            <tr><th scope="col">Tool</th><th scope="col">Requires scope</th><th scope="col">Status</th><th scope="col">What it does</th></tr>
+          </thead>
+          <tbody id="matrix-body"></tbody>
+        </table>
+      </div>
+      <p>A tool the role doesn't grant is never registered, so it isn't in the list the model chooses from, and a direct call fails as an unknown tool. Scopes come from <code>config/policy.toml</code>; an unknown role gets nothing at all.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="injection-h">
+    <div class="section-head">
+      <h2 id="injection-h">When the data is the attack</h2>
+      <p>A pull request title is written by a stranger and lands in the model's context</p>
+    </div>
+    <div class="panel">
+      <div class="flow">
+        <div class="stage">
+          <span class="label">As filed by the attacker <span class="pill idle">hidden characters shown</span></span>
+          <pre class="payload raw" id="injection-raw">loading…</pre>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="stage">
+          <span class="label">As this server returns it <span class="pill ok">labelled untrusted</span></span>
+          <pre class="payload clean" id="injection-clean">loading…</pre>
+        </div>
+      </div>
+      <div>
+        <span class="label">Characters removed</span>
+        <div class="removed" id="injection-removed"></div>
+      </div>
+      <div class="verdict-line">
+        <strong>The instruction is still readable — on purpose.</strong>
+        <p>Quietly rewriting third-party text would hide the attack from the human reading the output, and phrase-matching for jailbreaks misses rewordings while mangling legitimate bug reports. What's removed is only what hides: zero-width, bidi-override and ANSI characters. What stops the attack is the previous section — as <code>viewer</code>, the tool this payload names was never registered, so there is nothing to call. Telegram stays dry-run until a human sets <code>TELEGRAM_DRY_RUN=false</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="fail-h">
+    <div class="section-head">
+      <h2 id="fail-h">What a client gets when something breaks</h2>
+      <p>Real envelopes, produced by running the real guard</p>
+    </div>
+    <div class="two-up">
+      <div class="panel">
+        <div class="toggles" id="error-toggles" role="group" aria-label="Choose a failure kind"></div>
+        <pre class="json" id="error-envelope">loading…</pre>
+        <div class="role-summary">
+          <span class="pill idle" id="error-retry">—</span>
+          <span id="error-guidance" class="guidance"></span>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Why an envelope instead of an exception</h3>
+        <p>A model can't act on a stack trace, and a crash in one source shouldn't take the others with it. Every tool answers with the same shape, so the client can tell "wait 42 seconds" apart from "this will never work" without parsing prose.</p>
+        <p>Unexpected exceptions become <code>internal</code> with a generic message: exception text can carry tokens, so detail stays in the server log.</p>
+        <h3>Test suites</h3>
+        <div class="bars" id="suite-bars"></div>
+      </div>
+    </div>
+  </section>
 
   <section aria-labelledby="track-h">
     <div class="section-head">
@@ -257,18 +141,18 @@
         <div class="names">
           <span class="label">Scaffold</span><span class="label">Build</span><span class="label">Verify</span><span class="label">Document</span><span class="label">Publish</span>
         </div>
-        <span class="label" style="justify-self:end">State</span>
+        <span class="label legend-state">State</span>
       </div>
 
       <article class="project">
         <div>
           <h3>MCP server: GitHub, SQLite, Telegram</h3>
-          <p class="desc">Role-scoped tools, per-source degradation, alerts never silently dropped.</p>
+          <p class="desc">Role-scoped tools, per-source degradation, alerts that survive an outage, hostile input treated as data.</p>
           <p class="src mono">fde-mcp · Python · mcp 2.2</p>
         </div>
         <div>
           <div class="stages" aria-label="Stage 4 of 5: Document in progress"><span class="done"></span><span class="done"></span><span class="done"></span><span class="now"></span><span></span></div>
-          <p class="stage-caption">Three connectors, outbox fallback, runnable demo. ADR pending.</p>
+          <p class="stage-caption">Three connectors, outbox fallback, injection defences, runnable demo. ADR pending.</p>
         </div>
         <span class="state pill active">Documenting</span>
       </article>
@@ -320,67 +204,10 @@
         </div>
         <div>
           <div class="stages" aria-label="Stage 1 of 5 done"><span class="done"></span><span></span><span></span><span></span><span></span></div>
-          <p class="stage-caption">Template in place</p>
+          <p class="stage-caption">Template in place. Candidate: the cp1252 crash found by a clean-clone check.</p>
         </div>
         <span class="state pill warn">Author writing</span>
       </article>
-    </div>
-  </section>
-
-  <section aria-labelledby="feature-h">
-    <div class="section-head">
-      <h2 id="feature-h">In flight: fde-mcp</h2>
-      <p>Evidence from the live stdio smoke test, not the design doc</p>
-    </div>
-    <div class="feature">
-      <div class="panel">
-        <h3>Who can call what</h3>
-        <p>Tools require a scope, and roles grant scopes. A tool outside the role is never registered, so the model can't see it in the tool list.</p>
-        <div class="scroll">
-          <table>
-            <thead>
-              <tr><th>Tool</th><th>Scope</th><th class="cell">viewer</th><th class="cell">operator</th><th class="cell">oncall</th></tr>
-            </thead>
-            <tbody>
-              <tr><th><code>server_health</code></th><td class="scope">health:read</td><td class="cell"><span class="yes" aria-label="allowed"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td></tr>
-              <tr><th><code>github_list_open_prs</code></th><td class="scope">github:read</td><td class="cell"><span class="yes" aria-label="allowed"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td></tr>
-              <tr><th><code>github_get_issue</code></th><td class="scope">github:read</td><td class="cell"><span class="yes" aria-label="allowed"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td></tr>
-              <tr><th><code>db_recent_deployments</code></th><td class="scope">db:read</td><td class="cell"><span class="yes" aria-label="allowed"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td></tr>
-              <tr class="effect"><th><code>db_log_incident</code></th><td class="scope">db:write</td><td class="cell"><span class="no" aria-label="denied"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td></tr>
-              <tr class="effect"><th><code>telegram_send_alert</code></th><td class="scope">telegram:notify</td><td class="cell"><span class="no" aria-label="denied"></span></td><td class="cell"><span class="no" aria-label="denied"></span></td><td class="cell"><span class="yes" aria-label="allowed"></span></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="label">Amber tool names have real-world side effects</p>
-      </div>
-
-      <div class="panel">
-        <h3>Verification log</h3>
-        <pre class="log"><span class="p">&gt;</span> uv run pytest -q
-<span class="g">110 passed</span> in 2.79s
-  <span class="p">24 github    · mocked 401/403/404/422/5xx/timeout</span>
-  <span class="p">24 sqlite    · read-only path, locks, corrupt file</span>
-  <span class="p">24 telegram  · dry-run, 429 retry_after, token leaks</span>
-  <span class="p"> 8 fallback  · transient queues, permanent surfaces</span>
-  <span class="p"> 3 scripts   · ASCII-safe on a cp1252 console</span>
-  <span class="p">27 server    · policy, envelope, docs contract</span>
-
-<span class="p">&gt;</span> uv run python scripts/demo.py
-[oncall] db_recent_deployments -&gt; <span class="g">3 rows</span>   <span class="p">(from a clean clone)</span>
-[oncall] db_log_incident       -&gt; <span class="g">incident id 1</span>
-[oncall] telegram_send_alert   -&gt; dry_run, nothing sent
-[oncall] github_list_open_prs  -&gt; not_configured (degraded, no crash)</pre>
-        <div class="kinds" aria-label="Error kinds">
-          <code>not_configured</code><code>auth</code><code class="retry">rate_limited</code><code class="retry">unavailable</code><code>not_found</code><code>invalid_input</code><code>access_denied</code><code>internal</code>
-        </div>
-        <p class="label">Blue = retryable, carries retry_after_s</p>
-        <h3>Next up</h3>
-        <ol class="next">
-          <li>First ADR: role per process vs. per-request identity</li>
-          <li>Eval set: does the model pick the right tool under each role?</li>
-          <li>Drain the outbox — queued alerts are stored, not yet redelivered</li>
-        </ol>
-      </div>
     </div>
   </section>
 
@@ -393,41 +220,42 @@
       <div class="check">
         <h3>README leads with the problem and lists limitations</h3>
         <span class="pill ok">Met</span>
-        <p>Problem, why these sources, auth per source, degradation table, honest limitations.</p>
+        <p>Problem, why these sources, auth per source, threat model, degradation table, honest limitations.</p>
       </div>
       <div class="check">
         <h3>Secrets stay out of the repo</h3>
         <span class="pill ok">Met</span>
-        <p><code>.env.example</code> lists names only; <code>.env</code> is git-ignored; a test asserts <code>status()</code> never leaks a token.</p>
+        <p>Every tracked file is scanned for credential shapes, and the patterns are self-tested against realistic values so the scan can't pass vacuously.</p>
       </div>
       <div class="check">
         <h3>What happens when things go wrong</h3>
         <span class="pill ok">Met</span>
-        <p>Every documented failure maps to a stable kind with a retry hint: rate-limit delays, locked databases, dead sockets. A Telegram outage parks the alert in SQLite instead of dropping it.</p>
+        <p>Every documented failure maps to a stable kind with a retry hint. A Telegram outage parks the alert in SQLite instead of dropping it.</p>
       </div>
       <div class="check">
         <h3>Runs from a clean clone in one command</h3>
         <span class="pill ok">Met</span>
-        <p>Verified by cloning the public repo to a temp directory: <code>uv sync</code>, 110 passed, and <code>demo.py</code> walks a full incident with no credentials. That check found a real bug — box-drawing characters crashed the demo on a cp1252 console.</p>
+        <p>Verified by cloning the public repo to a temp directory. That check found a real bug: box-drawing characters crashed the demo on a cp1252 console.</p>
       </div>
       <div class="check">
         <h3>A real eval with committed results</h3>
         <span class="pill idle">Not started</span>
-        <p>Needs 20–50 cases, including refusal and out-of-scope prompts.</p>
+        <p>Needs 20–50 cases, including refusal and out-of-scope prompts. That's portfolio project 02.</p>
       </div>
       <div class="check">
         <h3>Decisions can be defended in writing</h3>
         <span class="pill idle">Not started</span>
-        <p>ADR candidates: role per process vs. per-request identity; client-side retries; Telegram outbox fallback.</p>
+        <p>ADR candidates: role per process vs. per-request identity; client-side retries; the Telegram outbox fallback.</p>
       </div>
     </div>
   </section>
 
   <footer>
     <span>Armando Gomez · Forward Deployed Engineering portfolio</span>
-    <span class="mono">Source of truth: <a href="https://github.com/ArmandoSNHU/FDE_Dashboard/blob/main/STATE.md">STATE.md</a> · project 01 in <a href="https://github.com/ArmandoSNHU/FDE_Dashboard/tree/main/projects/01-mcp-server">projects/01-mcp-server</a></span>
+    <span class="mono" id="stamp-generated">—</span>
   </footer>
 </div>
 
+<script src="assets/dashboard.js"></script>
 </body>
 </html>
