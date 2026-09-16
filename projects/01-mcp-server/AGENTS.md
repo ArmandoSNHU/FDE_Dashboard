@@ -8,6 +8,7 @@ and per-source structured failures. Run every command from this directory (`proj
 ## Read order
 1. `../../STATE.md`: repo-wide state and Restart Point. **It wins over anything else.**
 2. `README.md`: the public contract (tool table is test-enforced).
+   Repo-wide conventions live in `../../AGENTS.md`.
 3. `config/policy.toml`, `src/fde_mcp/tools/registry.py`, `src/fde_mcp/server.py`.
 
 ## Commands
@@ -39,4 +40,4 @@ uv run fde-mcp                         # run server (stdio)
 
 ## Done means
 Tests pass with the count reported, the smoke script output is shown, README/docs match the code, and `../../STATE.md`
-has a dated entry. If status changed, `../../dashboard/index.html` and the root README table change with it.
+has a dated entry. If status changed, `../../index.html` (the dashboard) and the root README table change with it.
