@@ -5,7 +5,7 @@ Single state file for the whole repo. Project-level detail lives in each project
 ## Restart Point (2026-09-15)
 
 **Verify first**, from `projects/01-mcp-server`:
-- `uv sync` then `uv run pytest -q` → expect `160 passed`
+- `uv sync` then `uv run pytest -q` → expect `170 passed`
 - `uv run python scripts/demo.py` → full incident scenario, no credentials, ends with "Demo complete"
 - `uv run python scripts/build_dashboard_data.py` → rewrites `dashboard-data.json` at the repo root
 
@@ -44,4 +44,4 @@ script appears, if the data drifts from the registry/policy, or if a referenced 
 4. Optional: drain the outbox; run once against the live GitHub API with a read-only token (every HTTP path is mocked so far).
 
 ## Session log
-- **2026-09-15**: Built project 01 end to end — scaffold, three connectors test-first, outbox fallback, runnable demo. Restructured into `projects/01-mcp-server/`, removed vendor-specific references, deployed to GitHub Pages, verified from a clean clone. Then added prompt-injection defences and secret scanning, rebuilt the dashboard to render generated data with a role switcher and failure explorer under a strict CSP, and added CI that tests on two operating systems before publishing. 27 → 160 tests.
+- **2026-09-15**: Built project 01 end to end — scaffold, three connectors test-first, outbox fallback, runnable demo. Restructured into `projects/01-mcp-server/`, removed vendor-specific references, deployed to GitHub Pages, verified from a clean clone. Then added prompt-injection defences and secret scanning, rebuilt the dashboard to render generated data with a role switcher and failure explorer under a strict CSP, and added CI that tests on two operating systems before publishing. 27 → 170 tests.
