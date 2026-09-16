@@ -11,6 +11,10 @@ from dataclasses import dataclass
 from typing import Any
 
 from fde_mcp.connectors import Connector, GitHubConnector, SQLiteConnector, TelegramConnector
+from fde_mcp.errors import ErrorKind, SourceError
+
+# Telegram failures worth parking in the outbox: the message may still be deliverable later.
+QUEUEABLE = frozenset({ErrorKind.RATE_LIMITED, ErrorKind.UNAVAILABLE})
 
 
 @dataclass(frozen=True)
@@ -62,9 +66,28 @@ def build_handlers(
         return await sqlite.log_incident(customer, summary, severity)
 
     async def telegram_send_alert(message: str, severity: str = "info") -> dict:
-        # TODO: on RATE_LIMITED / UNAVAILABLE from a live send, fall back to
-        # sqlite.enqueue_alert(...) and return {"delivered": False, "queued": True}.
-        return await telegram.send_alert(message, severity)
+        """Send an alert; if Telegram is temporarily down, park it in the SQLite outbox.
+
+        Only transient failures queue. An auth or validation failure is surfaced, because
+        hiding a misconfiguration behind a success-shaped result is how alerting rots.
+        """
+        try:
+            return await telegram.send_alert(message, severity)
+        except SourceError as exc:
+            if exc.kind not in QUEUEABLE or not sqlite.status().configured:
+                raise
+            reason = f"{exc.kind}: {exc.message}"
+            try:
+                outbox_id = await sqlite.enqueue_alert(message, severity, reason)
+            except SourceError:
+                raise exc from None  # both sources down: report the one the caller asked about
+            return {
+                "delivered": False,
+                "queued": True,
+                "outbox_id": outbox_id,
+                "reason": reason,
+                "retry_after_s": exc.retry_after_s,
+            }
 
     handlers = {
         "server_health": server_health,

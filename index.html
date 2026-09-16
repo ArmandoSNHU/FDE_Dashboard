@@ -231,13 +231,13 @@
     </div>
     <div role="listitem">
       <span class="label">Test suite</span>
-      <span class="big">75 <small>passed</small></span>
+      <span class="big">107 <small>passed</small></span>
       <span class="note">fde-mcp · 0 failing</span>
     </div>
     <div role="listitem">
       <span class="label">Reviewer checklist</span>
-      <span class="big">2 <small>/ 6 met</small></span>
-      <span class="note">2 partial · 2 not started</span>
+      <span class="big">4 <small>/ 6 met</small></span>
+      <span class="note">2 not started · 0 partial</span>
     </div>
     <div role="listitem">
       <span class="label">Write-ups</span>
@@ -267,10 +267,10 @@
           <p class="src mono">fde-mcp · Python · mcp 2.2</p>
         </div>
         <div>
-          <div class="stages" aria-label="Stage 2 of 5: Build in progress"><span class="done"></span><span class="now"></span><span></span><span></span><span></span></div>
-          <p class="stage-caption">GitHub and SQLite connectors done. Telegram next.</p>
+          <div class="stages" aria-label="Stage 4 of 5: Document in progress"><span class="done"></span><span class="done"></span><span class="done"></span><span class="now"></span><span></span></div>
+          <p class="stage-caption">Three connectors, outbox fallback, runnable demo. ADR pending.</p>
         </div>
-        <span class="state pill active">Building</span>
+        <span class="state pill active">Documenting</span>
       </article>
 
       <article class="project">
@@ -357,25 +357,27 @@
       <div class="panel">
         <h3>Verification log</h3>
         <pre class="log"><span class="p">&gt;</span> uv run pytest -q
-<span class="g">75 passed</span> in 2.48s
-  <span class="p">24 github  · mocked 401/403/404/422/5xx/timeout</span>
-  <span class="p">24 sqlite  · read-only path, locks, corrupt file</span>
-  <span class="p">27 server  · policy, envelope, docs contract</span>
+<span class="g">107 passed</span> in 2.81s
+  <span class="p">24 github    · mocked 401/403/404/422/5xx/timeout</span>
+  <span class="p">24 sqlite    · read-only path, locks, corrupt file</span>
+  <span class="p">24 telegram  · dry-run, 429 retry_after, token leaks</span>
+  <span class="p"> 8 fallback  · transient queues, permanent surfaces</span>
+  <span class="p">27 server    · policy, envelope, docs contract</span>
 
-<span class="p">&gt;</span> uv run python scripts/smoke_stdio.py
-[viewer] tools: 4 of 6
-[viewer] github_list_open_prs -&gt; not_configured
-[viewer] telegram_send_alert (hidden) -&gt; is_error=True
-[oncall] tools: 6 of 6</pre>
+<span class="p">&gt;</span> uv run python scripts/demo.py
+[oncall] db_recent_deployments -&gt; <span class="g">3 rows</span>
+[oncall] db_log_incident       -&gt; <span class="g">incident id 1</span>
+[oncall] telegram_send_alert   -&gt; dry_run, nothing sent
+[oncall] github_list_open_prs  -&gt; not_configured (degraded, no crash)</pre>
         <div class="kinds" aria-label="Error kinds">
           <code>not_configured</code><code>auth</code><code class="retry">rate_limited</code><code class="retry">unavailable</code><code>not_found</code><code>invalid_input</code><code>access_denied</code><code>internal</code>
         </div>
         <p class="label">Blue = retryable, carries retry_after_s</p>
         <h3>Next up</h3>
         <ol class="next">
-          <li>Telegram dry-run path, then the live send behind mocks</li>
-          <li>Outbox fallback: an undelivered alert lands in SQLite, not the void</li>
           <li>First ADR: role per process vs. per-request identity</li>
+          <li>Eval set: does the model pick the right tool under each role?</li>
+          <li>Drain the outbox — queued alerts are stored, not yet redelivered</li>
         </ol>
       </div>
     </div>
@@ -399,8 +401,8 @@
       </div>
       <div class="check">
         <h3>What happens when things go wrong</h3>
-        <span class="pill warn">Partial</span>
-        <p>GitHub and SQLite classify every documented failure under test, including rate-limit delays and locked databases. Telegram is still a skeleton.</p>
+        <span class="pill ok">Met</span>
+        <p>Every documented failure maps to a stable kind with a retry hint: rate-limit delays, locked databases, dead sockets. A Telegram outage parks the alert in SQLite instead of dropping it.</p>
       </div>
       <div class="check">
         <h3>Runs from a clean clone in one command</h3>
