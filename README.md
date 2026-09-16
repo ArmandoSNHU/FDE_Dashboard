@@ -24,7 +24,7 @@ regenerates that data, and only then publishes the page — so a broken test can
 
 | # | Project | What it demonstrates | Status |
 |---|---|---|---|
-| 01 | [MCP server: GitHub + SQLite + Telegram](projects/01-mcp-server/) | Role-scoped tool access, per-source failure isolation, prompt-injection defences, alerts that survive an outage | **Working** — 3 connectors, 160 tests, runnable demo |
+| 01 | [MCP server: GitHub + SQLite + Telegram](projects/01-mcp-server/) | Role-scoped tool access, per-source failure isolation, prompt-injection defences, alerts that survive an outage | **Working** — 3 connectors, 170 tests, runnable demo |
 | 02 | Evaluation framework | 20+ cases over happy path, messy input, out-of-scope and refusal; committed before/after pass rates | Queued |
 | 03 | Enterprise integration under real constraints | Undocumented behaviour, inconsistent data, stakeholder impact | Queued |
 | 04 | Architecture Decision Record | Rejected options, what the choice cost, what I'd revisit | [Template ready](projects/01-mcp-server/docs/adr/) |
@@ -47,7 +47,7 @@ STATE.md                    current state and restart point for the whole portfo
 cd projects/01-mcp-server
 uv sync
 uv run python scripts/demo.py          # scripted incident against the real server
-uv run pytest -q                       # 160 passed
+uv run pytest -q                       # 170 passed
 uv run python scripts/smoke_stdio.py   # tool visibility per role
 uv run python scripts/build_dashboard_data.py   # regenerate the dashboard's figures
 ```

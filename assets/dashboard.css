@@ -8,7 +8,7 @@
   --sunken: #e3e8ee;
   --ink: #15202b;
   --ink-2: #485664;
-  --ink-3: #788696;
+  --ink-3: #5a6875; /* AA on --ground, --surface and --sunken; #788696 failed at 3.22 */
   --rule: #d2d9e1;
   --accent: #2a57c0;
   --accent-soft: #dde6f8;
@@ -38,7 +38,7 @@
     --sunken: #1b252f;
     --ink: #e4eaf0;
     --ink-2: #aab7c4;
-    --ink-3: #7d8b99;
+    --ink-3: #8695a3; /* AA on --sunken; #7d8b99 was 4.46 */
     --rule: #26323e;
     --accent: #7ea3f0;
     --accent-soft: #1d2b46;
@@ -61,7 +61,7 @@
   --sunken: #1b252f;
   --ink: #e4eaf0;
   --ink-2: #aab7c4;
-  --ink-3: #7d8b99;
+  --ink-3: #8695a3; /* AA on --sunken; #7d8b99 was 4.46 */
   --rule: #26323e;
   --accent: #7ea3f0;
   --accent-soft: #1d2b46;

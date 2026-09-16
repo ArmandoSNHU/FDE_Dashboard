@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-09-16T03:14:15Z",
+  "generated_at": "2026-09-16T03:16:46Z",
   "git": {
-    "sha": "2c8a3040561f64990202b2eddcbe24ce916cca01",
-    "short": "2c8a304",
-    "subject": "Defend against prompt injection; generate the dashboard from real runs",
-    "committed_at": "2026-09-15T22:11:49-05:00",
-    "commits": "7"
+    "sha": "a2ca7aeadc6e9013d7b80473a067ac2893d5c953",
+    "short": "a2ca7ae",
+    "subject": "Count behaviours, not files, in the test total",
+    "committed_at": "2026-09-15T22:14:35-05:00",
+    "commits": "8"
   },
   "tests": {
-    "total": 160,
+    "total": 170,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "duration_s": 3.2,
-    "passed": 160,
+    "duration_s": 3.13,
+    "passed": 170,
     "suites": [
       {
         "key": "github",
@@ -44,6 +44,11 @@
         "key": "server",
         "what": "Role filtering and the error envelope",
         "count": 11
+      },
+      {
+        "key": "test_dashboard_contrast",
+        "what": "test_dashboard_contrast",
+        "count": 10
       },
       {
         "key": "secrets",
