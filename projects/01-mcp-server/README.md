@@ -2,7 +2,7 @@
 
 Project 1 of the [FDE portfolio](../../README.md). Run commands from this directory.
 
-**Author:** Armando Gomez · **Status:** scaffold (connectors are skeletons; access control, error model, and wiring are implemented and tested)
+**Author:** Armando Gomez · **Status:** working — all three connectors implemented, 107 tests passing, `scripts/demo.py` runs the whole thing with no credentials
 
 ## The problem
 
@@ -97,10 +97,15 @@ The mapping for each source is documented at the top of its connector module in 
 
 ```powershell
 uv sync                                   # setup
-Copy-Item .env.example .env               # then fill in what you have; everything is optional
-uv run pytest -q                          # test
+uv run python scripts/demo.py             # demo: full scenario, no credentials needed
+uv run pytest -q                          # test: 107 passed
 uv run fde-mcp                            # run (stdio MCP server, role from FDE_MCP_ROLE)
 ```
+
+`scripts/demo.py` builds a throwaway ops database, starts the real server as `oncall`, and walks one
+incident: what shipped → record the incident → alert the chat (dry-run) → ask GitHub with no token,
+so you can see a degraded source answer instead of crashing. Copy `.env.example` to `.env` when you
+want to point it at real sources; every value is optional.
 
 Register it with any MCP client that speaks stdio. Most use this shape of config:
 
@@ -139,10 +144,26 @@ docs/postmortems/           incident write-ups
 
 Recorded in [`docs/adr/`](docs/adr/). Post-mortems are in [`docs/postmortems/`](docs/postmortems/).
 
+## Acceptance criteria
+
+What "done" means for this server, and where each is proven:
+
+| Criterion | Proven by |
+|---|---|
+| A role can never call a tool outside its scopes, and can't see it either | `tests/test_server.py` (registration + call-time guard), live in `scripts/smoke_stdio.py` |
+| No source failure can crash the server or block another source | `tests/test_server.py`, demo step 5 (GitHub unconfigured while SQLite and Telegram work) |
+| Every documented failure maps to a stable `kind`, with `retry_after_s` where it exists | `tests/test_github_connector.py`, `test_sqlite_connector.py`, `test_telegram_connector.py` |
+| A read tool can never write, even by mistake | `test_read_path_opens_the_file_read_only` (SQLite `mode=ro` rejects the insert) |
+| No credential appears in a result, an error, or a log line | token-leak tests in all three connector suites |
+| An accepted alert is never silently lost | `tests/test_alert_fallback.py` (transient → outbox; permanent → surfaced) |
+| The server starts with nothing configured | `test_server_starts_and_reports_health_with_nothing_configured` |
+| The docs match the code | `tests/test_docs_contract.py` (README tool table vs. registry) |
+
 ## Limitations (honest list)
 
-- **Connectors are skeletons.** Calls to configured sources currently return `not_implemented`. The contract, failure mapping, and tests around them are in place; the HTTP and SQL bodies are next.
 - One role per process. There's no per-request identity yet, so it isn't suitable as a shared multi-tenant HTTP server as-is.
 - No retries inside the server: retry decisions are handed to the client via `retryable` / `retry_after_s`. This is deliberate, but it's a trade-off.
-- The Telegram → SQLite outbox fallback is designed and documented, but not yet implemented or drained by anything.
-- No eval harness yet for "does the model pick the right tool under each role".
+- **Nothing drains the outbox yet.** A queued alert is safely stored and visible in `alert_outbox`, but redelivery is manual.
+- `github_list_open_prs` returns the first page only (100 PRs). Deeper history is a job for the ops DB, not this tool.
+- No eval harness yet for "does the model pick the right tool under each role" — that's portfolio project 02.
+- Tested against mocked HTTP. The GitHub and Telegram paths have never run against the live APIs.
