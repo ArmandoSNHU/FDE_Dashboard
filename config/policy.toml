@@ -1,0 +1,24 @@
+# Access policy: roles grant scopes, each tool requires exactly one scope.
+# The server runs as one role, chosen by FDE_MCP_ROLE. Unknown roles get nothing.
+# A role that grants a scope not listed under [scopes].known fails at startup.
+
+[scopes]
+known = [
+  "health:read",      # server_health
+  "github:read",      # read-only GitHub queries
+  "db:read",          # read-only SQLite queries
+  "db:write",         # inserts into the ops DB
+  "telegram:notify",  # outbound messages — a real-world side effect
+]
+
+# Default for exploratory / untrusted clients: read everything, change nothing.
+[roles.viewer]
+scopes = ["health:read", "github:read", "db:read"]
+
+# Can record incidents, but cannot page humans.
+[roles.operator]
+scopes = ["health:read", "github:read", "db:read", "db:write"]
+
+# Full surface, including Telegram alerts.
+[roles.oncall]
+scopes = ["health:read", "github:read", "db:read", "db:write", "telegram:notify"]
