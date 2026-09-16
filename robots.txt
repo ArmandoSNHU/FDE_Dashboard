@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://armandosnhu.github.io/FDE_Dashboard/sitemap.xml

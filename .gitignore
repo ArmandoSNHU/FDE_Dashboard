@@ -5,3 +5,6 @@ __pycache__/
 .pytest_cache/
 **/data/*.db
 dist/
+
+# local browser-check artifacts
+.playwright-mcp/

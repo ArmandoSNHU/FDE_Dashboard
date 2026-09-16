@@ -12,6 +12,7 @@ from typing import Any
 
 from fde_mcp.connectors import Connector, GitHubConnector, SQLiteConnector, TelegramConnector
 from fde_mcp.errors import ErrorKind, SourceError
+from fde_mcp.untrusted import PROVENANCE_NOTE
 
 # Telegram failures worth parking in the outbox: the message may still be deliverable later.
 QUEUEABLE = frozenset({ErrorKind.RATE_LIMITED, ErrorKind.UNAVAILABLE})
@@ -53,14 +54,15 @@ def build_handlers(
             "sources": {name: {"configured": s.configured, "detail": s.detail} for name, c in connectors.items() for s in [c.status()]},
         }
 
-    async def github_list_open_prs(repo: str) -> list[dict]:
-        return await github.list_open_pulls(repo)
+    async def github_list_open_prs(repo: str) -> dict:
+        return {"repo": repo, "pulls": await github.list_open_pulls(repo), "provenance": PROVENANCE_NOTE}
 
     async def github_get_issue(repo: str, number: int) -> dict:
-        return await github.get_issue(repo, number)
+        return {"issue": await github.get_issue(repo, number), "provenance": PROVENANCE_NOTE}
 
-    async def db_recent_deployments(customer: str, limit: int = 20) -> list[dict]:
-        return await sqlite.recent_deployments(customer, limit)
+    async def db_recent_deployments(customer: str, limit: int = 20) -> dict:
+        rows = await sqlite.recent_deployments(customer, limit)
+        return {"customer": customer, "deployments": rows, "provenance": PROVENANCE_NOTE}
 
     async def db_log_incident(customer: str, summary: str, severity: str) -> dict:
         return await sqlite.log_incident(customer, summary, severity)

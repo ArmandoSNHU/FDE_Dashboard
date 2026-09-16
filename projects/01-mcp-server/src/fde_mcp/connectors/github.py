@@ -27,6 +27,7 @@ import httpx
 
 from fde_mcp.connectors.base import Connector, ConnectorStatus
 from fde_mcp.errors import ErrorKind, SourceError
+from fde_mcp.untrusted import clean_text
 
 API_BASE = "https://api.github.com"
 API_VERSION = "2022-11-28"
@@ -54,14 +55,15 @@ class GitHubConnector(Connector):
         self._require_configured()
         self._validate_repo(repo)
         payload = await self._get(f"/repos/{repo}/pulls", {"state": "open", "per_page": MAX_PULLS})
+        # Every string here was written by a stranger: see fde_mcp.untrusted.
         return [
             {
                 "number": pr.get("number"),
-                "title": pr.get("title"),
-                "author": (pr.get("user") or {}).get("login"),
-                "updated_at": pr.get("updated_at"),
+                "title": clean_text(pr.get("title"), limit=300),
+                "author": clean_text((pr.get("user") or {}).get("login"), limit=100),
+                "updated_at": clean_text(pr.get("updated_at"), limit=40),
                 "draft": bool(pr.get("draft")),
-                "url": pr.get("html_url"),
+                "url": clean_text(pr.get("html_url"), limit=500),
             }
             for pr in payload
         ]
@@ -73,16 +75,16 @@ class GitHubConnector(Connector):
         if not isinstance(number, int) or number < 1:
             raise SourceError(self.name, ErrorKind.INVALID_INPUT, f"issue number must be positive, got {number!r}")
         issue = await self._get(f"/repos/{repo}/issues/{number}")
-        body = issue.get("body") or ""
+        raw_body = issue.get("body") or ""
         return {
             "number": issue.get("number"),
-            "title": issue.get("title"),
-            "state": issue.get("state"),
-            "labels": [label.get("name") for label in issue.get("labels") or []],
-            "assignees": [user.get("login") for user in issue.get("assignees") or []],
-            "body": body[:MAX_BODY_CHARS],
-            "body_truncated": len(body) > MAX_BODY_CHARS,
-            "url": issue.get("html_url"),
+            "title": clean_text(issue.get("title"), limit=300),
+            "state": clean_text(issue.get("state"), limit=40),
+            "labels": [clean_text(label.get("name"), limit=100) for label in issue.get("labels") or []],
+            "assignees": [clean_text(user.get("login"), limit=100) for user in issue.get("assignees") or []],
+            "body": clean_text(raw_body, limit=MAX_BODY_CHARS),
+            "body_truncated": len(raw_body) > MAX_BODY_CHARS,
+            "url": clean_text(issue.get("html_url"), limit=500),
         }
 
     def _validate_repo(self, repo: str) -> None:

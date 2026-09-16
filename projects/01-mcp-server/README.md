@@ -144,6 +144,34 @@ docs/postmortems/           incident write-ups
 
 Recorded in [`docs/adr/`](docs/adr/). Post-mortems are in [`docs/postmortems/`](docs/postmortems/).
 
+## Threat model
+
+The interesting threat in an MCP server isn't a hacker at the door — it's that **the server feeds
+third-party text into a model that can call tools**. A pull request title is written by a stranger
+and lands in the same context window as the instructions the model is following.
+
+| Threat | What we do | Proven by |
+|---|---|---|
+| **Prompt injection** via PR titles, issue bodies, DB rows | Strip zero-width, bidi-override, ANSI and control characters; cap length; label every such result `provenance: untrusted`; tell the model in the server instructions never to follow tool output | `tests/test_untrusted_content.py`, `tests/test_injection_end_to_end.py` |
+| Injection escalating to a **real-world action** | The named tool isn't registered for the role, so there's nothing to call; Telegram is dry-run until a human sets `TELEGRAM_DRY_RUN=false` | `test_obeying_the_injection_is_impossible_for_a_viewer` |
+| **Context flooding** (a 400 KB issue body burying the real content) | Per-field caps with a visible truncation marker; blank-line runs collapsed | `test_a_huge_body_cannot_flood_the_context` |
+| **Credential exposure** in results, errors or logs | Tokens never interpolated into messages; Telegram's URL (which contains the token) is never logged; unexpected exceptions are replaced with a generic message | token-leak tests in all three connector suites |
+| **Credentials committed** to the repo | Every tracked file is scanned for credential shapes; fixtures must carry an obvious fake marker | `tests/test_no_secrets_committed.py` |
+| **SQL injection** | No tool accepts SQL; every statement is fixed and parameterised | `test_customer_is_parameterised_not_interpolated` |
+| **Data exfiltration** to an attacker's chat | `telegram_send_alert` takes no chat id; the destination comes from the environment | `tests/test_telegram_connector.py` |
+| **Over-broad tool access** | Tools require a scope; roles grant scopes; unknown roles get nothing | `tests/test_access_policy.py`, `tests/test_server.py` |
+| A **read tool writing** by accident | Read path opens SQLite with `mode=ro`; SQLite itself rejects the write | `test_read_path_opens_the_file_read_only` |
+
+**What we deliberately don't do:** try to detect "an instruction" in third-party text. Phrase-matching for
+jailbreaks misses rewordings and mangles legitimate content — a bug report that says "ignore previous
+instructions" is a normal bug report. Hostile text stays visible and quoted verbatim, because silently
+rewriting it would hide the attack from the human reading the output. The boundary that actually holds is
+the one injection can't talk its way through: a capability the process was never started with.
+
+**Known limits:** a model can still be *misled* by hostile text (told a false fact and repeat it). Nothing
+here prevents that; it bounds the blast radius to what the role could already do. There is no rate limiting
+or audit log of tool calls yet.
+
 ## Acceptance criteria
 
 What "done" means for this server, and where each is proven:
@@ -156,6 +184,8 @@ What "done" means for this server, and where each is proven:
 | A read tool can never write, even by mistake | `test_read_path_opens_the_file_read_only` (SQLite `mode=ro` rejects the insert) |
 | No credential appears in a result, an error, or a log line | token-leak tests in all three connector suites |
 | An accepted alert is never silently lost | `tests/test_alert_fallback.py` (transient → outbox; permanent → surfaced) |
+| Third-party text can't hide characters, flood the context, or escalate to an action | `tests/test_untrusted_content.py`, `tests/test_injection_end_to_end.py` |
+| No credential shape is ever committed | `tests/test_no_secrets_committed.py` (patterns self-tested against realistic values) |
 | The server starts with nothing configured | `test_server_starts_and_reports_health_with_nothing_configured` |
 | The docs match the code | `tests/test_docs_contract.py` (README tool table vs. registry) |
 
