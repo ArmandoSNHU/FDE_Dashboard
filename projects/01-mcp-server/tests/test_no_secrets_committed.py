@@ -48,24 +48,31 @@ def test_there_are_files_to_scan():
     assert len(scannable()) > 10, "scanner found almost nothing; it would pass vacuously"
 
 
-@pytest.mark.parametrize("path", scannable(), ids=lambda p: str(p.relative_to(REPO_ROOT)).replace("\\", "/"))
-def test_file_contains_no_credential_shaped_strings(path: Path):
-    try:
-        content = path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, OSError):
-        return  # binary or unreadable: nothing a credential would hide in as text
+def test_no_tracked_file_contains_credential_shaped_strings():
+    """One test over every file, not one test per file: the suite total should count
+    behaviours covered, not how many files the repo happens to have."""
+    findings: list[str] = []
+    for path in scannable():
+        try:
+            content = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue  # binary or unreadable: nothing a credential would hide in as text
 
-    for label, pattern in PATTERNS.items():
-        for match in pattern.finditer(content):
-            value = match.group(0)
-            if any(marker in value.lower() for marker in FAKE_MARKERS):
-                continue
-            line = content[: match.start()].count("\n") + 1
-            rel = path.relative_to(REPO_ROOT)
-            pytest.fail(
-                f"{rel}:{line} looks like a {label}. If it is a fixture, put an obvious marker "
-                f"({', '.join(FAKE_MARKERS[:4])}) in the value; if it is real, rotate it now."
-            )
+        for label, pattern in PATTERNS.items():
+            for match in pattern.finditer(content):
+                value = match.group(0)
+                if any(marker in value.lower() for marker in FAKE_MARKERS):
+                    continue
+                line = content[: match.start()].count("\n") + 1
+                rel = str(path.relative_to(REPO_ROOT)).replace("\\", "/")
+                findings.append(f"{rel}:{line} looks like a {label}")
+
+    assert not findings, (
+        "Possible credentials committed:\n  "
+        + "\n  ".join(findings)
+        + f"\nIf a hit is a fixture, put an obvious marker ({', '.join(FAKE_MARKERS[:4])}) in the value. "
+        "If it is real, rotate it now — git history keeps it even after you delete the line."
+    )
 
 
 @pytest.mark.parametrize(

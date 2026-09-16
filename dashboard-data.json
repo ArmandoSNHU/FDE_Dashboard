@@ -1,25 +1,20 @@
 {
-  "generated_at": "2026-09-16T03:11:02Z",
+  "generated_at": "2026-09-16T03:14:15Z",
   "git": {
-    "sha": "89242cfcaadb0b9b5e032d990a885ad4bf1e2db7",
-    "short": "89242cf",
-    "subject": "Mark clean-clone check verified; update dashboard and state to 110 tests",
-    "committed_at": "2026-09-15T21:41:59-05:00",
-    "commits": "6"
+    "sha": "2c8a3040561f64990202b2eddcbe24ce916cca01",
+    "short": "2c8a304",
+    "subject": "Defend against prompt injection; generate the dashboard from real runs",
+    "committed_at": "2026-09-15T22:11:49-05:00",
+    "commits": "7"
   },
   "tests": {
-    "total": 198,
+    "total": 160,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "duration_s": 3.15,
-    "passed": 198,
+    "duration_s": 3.2,
+    "passed": 160,
     "suites": [
-      {
-        "key": "secrets",
-        "what": "No credential shape in any tracked file",
-        "count": 47
-      },
       {
         "key": "github",
         "what": "GitHub failure classification",
@@ -49,6 +44,11 @@
         "key": "server",
         "what": "Role filtering and the error envelope",
         "count": 11
+      },
+      {
+        "key": "secrets",
+        "what": "No credential shape in any tracked file",
+        "count": 9
       },
       {
         "key": "fallback",
