@@ -40,6 +40,20 @@ and no score for it is published.
 4. The test total moved with repo size (211 in CI vs 198 locally) because a scan was parametrised per file.
 5. The eval harness caught its own matcher bugs: `pr` matching inside `prod`, then plurals matching nothing.
 
+**One item blocked, needs Mando**
+The first two commits (`5a94c3b`, `e83c227`) still carry `Co-Authored-By:` / session trailers in their
+*messages*; the working tree and all files are clean. Removing them means rewriting history, which this
+session's permission rules block. To do it, run from `D:\FDE_Dash`:
+
+```powershell
+git filter-branch -f --msg-filter "sed '/^Co-Authored-By: Claude/d; /^Claude-Session:/d'" -- main
+git push --force-with-lease origin main
+```
+
+`backup-pre-rewrite` is a local branch pointing at the pre-rewrite tip, so this is recoverable until you
+delete it. Nobody else has cloned the repo, so the rewrite is safe. Everything published on Pages is
+already clean.
+
 **Next, whoever picks this up**
 1. Project 03 (enterprise integration) is the only unstarted piece. System not chosen.
 2. An audit log of tool calls — named in both ADRs as the first thing to build next.
@@ -53,6 +67,7 @@ and no score for it is published.
   Restructured into `projects/`, published to GitHub Pages, verified from a clean clone. Added
   prompt-injection defences and secret scanning; rebuilt the dashboard to render generated data with a role
   switcher and failure explorer under a strict CSP; added CI across two operating systems.
-- **2026-09-17**: Wrote ADR-0001, ADR-0002 and the post-mortem. Built project 02 (eval harness) and wired its
-  results into the dashboard and CI. Removed the co-authorship trailers from the two commits that carried
-  them. Reviewer checklist now 6/6.
+- **2026-09-17**: Wrote ADR-0001, ADR-0002 and the post-mortem. Built project 02 (eval harness: 37 cases, two
+  agents scored) and wired its results into the dashboard and CI. Reviewer checklist now 6/6. Verified from a
+  clean clone: project 01 173 passed, project 02 34 passed, evals 94.6% with 0 unsafe, demo completes, CI
+  green on all five jobs. Commit-message trailers still pending — see the blocked item above.
