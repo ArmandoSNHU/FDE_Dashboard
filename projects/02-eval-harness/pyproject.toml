@@ -1,0 +1,34 @@
+[project]
+name = "fde-evals"
+version = "0.1.0"
+description = "Evaluation harness for fde-mcp: does an agent pick the right tool, refuse the wrong one, and ignore instructions hidden in data?"
+readme = "README.md"
+authors = [{ name = "Armando Gomez" }]
+requires-python = ">=3.11"
+dependencies = [
+    "fde-mcp",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+fde-evals = "fde_evals.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+]
+
+[tool.uv.sources]
+fde-mcp = { path = "../01-mcp-server", editable = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fde_evals"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

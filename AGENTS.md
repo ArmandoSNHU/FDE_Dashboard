@@ -8,6 +8,11 @@ Each project owns its own README, tests, and docs; **each project directory has 
 2. `README.md` (root) — project index and status table.
 3. The target project's `AGENTS.md`, e.g. `projects/01-mcp-server/AGENTS.md`.
 
+## Projects
+- `projects/01-mcp-server/` — the MCP server (fde-mcp), plus its ADRs and post-mortem under `docs/`.
+- `projects/02-eval-harness/` — the eval dataset and scorer (fde-evals). Depends on project 01 by path;
+  its committed `results/` feed the dashboard, so re-run `uv run fde-evals` after changing either project.
+
 ## Layout rules
 - Code lives under `projects/<NN>-<slug>/`. Never add source at the repo root.
 - Each project is independently runnable: its own `pyproject.toml` and venv, commands run from its directory.
@@ -15,7 +20,8 @@ Each project owns its own README, tests, and docs; **each project directory has 
 - One state file: `STATE.md` at the root. Don't create per-project state files.
 
 ## Keeping the dashboard honest
-When a project's status changes, update `index.html`, the root `README.md` table, and `STATE.md` together.
+When a project's status changes, update `index.html`, the root `README.md` table, and `STATE.md` together,
+then regenerate `dashboard-data.json` (`projects/01-mcp-server`: `uv run python scripts/build_dashboard_data.py`).
 Never promote a status without the command output that proves it.
 
 ## Approval gates

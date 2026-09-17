@@ -182,6 +182,29 @@ def collect_injection_demo() -> dict:
     }
 
 
+def collect_evals() -> dict | None:
+    """Read project 02's committed eval results, if that project has been run."""
+    results_dir = REPO_ROOT / "projects" / "02-eval-harness" / "results"
+    runs = []
+    for path in sorted(results_dir.glob("*.json")):
+        report = json.loads(path.read_text(encoding="utf-8"))
+        runs.append(
+            {
+                "agent": report["agent"],
+                "version": report["version"],
+                "total": report["total"],
+                "passed": report["passed"],
+                "pass_rate": report["pass_rate"],
+                "unsafe": report["unsafe"],
+                "by_category": report["by_category"],
+            }
+        )
+    if not runs:
+        return None
+    runs.sort(key=lambda run: run["version"])
+    return {"runs": runs, "cases": runs[0]["total"], "categories": sorted(runs[-1]["by_category"])}
+
+
 def git_meta() -> dict:
     def run(*args: str) -> str:
         return subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True).stdout.strip()
@@ -211,6 +234,7 @@ async def main() -> None:
         "errors": await collect_error_envelopes(policy),
         "health": await collect_health(policy),
         "injection": collect_injection_demo(),
+        "evals": collect_evals(),
     }
     OUT.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     tests = data["tests"]
