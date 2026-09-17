@@ -2,46 +2,57 @@
 
 Single state file for the whole repo. Project-level detail lives in each project's README and AGENTS.md.
 
-## Restart Point (2026-09-15)
+## Restart Point (2026-09-17)
 
-**Verify first**, from `projects/01-mcp-server`:
-- `uv sync` then `uv run pytest -q` → expect `170 passed`
-- `uv run python scripts/demo.py` → full incident scenario, no credentials, ends with "Demo complete"
-- `uv run python scripts/build_dashboard_data.py` → rewrites `dashboard-data.json` at the repo root
+**Verify first:**
+- `projects/01-mcp-server`: `uv sync` then `uv run pytest -q` → expect `173 passed`
+- `projects/01-mcp-server`: `uv run python scripts/demo.py` → ends with "Demo complete"
+- `projects/02-eval-harness`: `uv sync` then `uv run pytest -q` → expect `34 passed`
+- `projects/02-eval-harness`: `uv run fde-evals --check` → v2 at 94.6%, 0 unsafe
+- `projects/01-mcp-server`: `uv run python scripts/build_dashboard_data.py` → rewrites `dashboard-data.json`
 
 **Repo state**
-- Layout: `projects/<NN>-<slug>/` per project; `index.html` + `assets/` + `dashboard-data.json` at the root (the dashboard); this file at the root.
-- Published: GitHub `ArmandoSNHU/FDE_Dashboard` (public), branch `main`.
-- Dashboard: https://armandosnhu.github.io/FDE_Dashboard/ — **Pages now builds from GitHub Actions**, not from the branch. `.github/workflows/ci.yml` runs the suite on Ubuntu + Windows, regenerates the data, then publishes.
-- Verified from a clean clone of the public repo: `uv sync`, tests, demo.
-- `D:\FDE_Dash\.venv` from the pre-restructure layout is stale and can be deleted (blocked from here by path protection).
+- Published: GitHub `ArmandoSNHU/FDE_Dashboard` (public), branch `main`. Dashboard:
+  https://armandosnhu.github.io/FDE_Dashboard/ — Pages builds from GitHub Actions, not from the branch.
+- CI (`.github/workflows/ci.yml`): both projects tested on Ubuntu + Windows, demo re-run under
+  `PYTHONIOENCODING=cp1252`, evals gated at 94% with zero unsafe, then the dashboard data is regenerated and
+  the site published.
+- Verified from a clean clone of the public repo.
+- `D:\FDE_Dash\.venv` from the pre-restructure layout is stale and can be deleted (path protection blocks it
+  from this session).
 
-**Project 01 — fde-mcp: done**
-- Access policy (deny by default, load-time validation), `guarded` error envelope, role-filtered registration, `server_health`.
-- **GitHub connector**: full status classification, `retry_after_s` from `Retry-After` / `X-RateLimit-Reset`, slug validation before any request, trimmed responses. Tests via `httpx.MockTransport`.
-- **SQLite connector**: `mode=ro` read path, parameterised statements only, locked-DB retryable vs. corrupt not, work in `asyncio.to_thread`.
-- **Telegram connector**: dry-run default with no network call; `200 ok:false` treated as undelivered; token never in a result or error.
-- **Outbox fallback**: transient Telegram failure → `sqlite.enqueue_alert` → `queued: true`; permanent failures surface; if SQLite is also down the Telegram error wins.
-- **Injection defences** (`src/fde_mcp/untrusted.py`): strip zero-width/bidi/ANSI/control characters, cap fields, attach a `provenance` block, and server instructions tell the client never to follow tool output. Hostile text is *not* rewritten — the defence that holds is that the named tool isn't registered for the role.
-- **Secret scanning**: every tracked file checked for credential shapes; the patterns are self-tested so the scan can't pass vacuously.
-- **Demo**: `scripts/demo.py`, no credentials, one incident end to end.
+**Project 01 — fde-mcp: complete for its scope**
+Three connectors (GitHub, SQLite, Telegram), role-scoped registration with a call-time guard, one error
+envelope for every failure, an outbox so a failed alert is never dropped, injection defences in
+`untrusted.py`, secret scanning, a credential-free demo, ADRs 0001 and 0002, and a post-mortem.
 
-**Dashboard: generated, not typed**
-`scripts/build_dashboard_data.py` writes `dashboard-data.json` by building the real server per role, running
-the real guard per failure kind, running the real sanitiser over a real payload, and parsing a pytest report.
-The page renders that and adds a role switcher and a failure explorer. It ships a strict CSP
-(`default-src 'none'`, no `unsafe-inline`); `tests/test_dashboard_contract.py` fails if an inline style or
-script appears, if the data drifts from the registry/policy, or if a referenced asset is missing.
+**Project 02 — fde-evals: complete for its scope**
+37 cases across happy path, write, notify, out-of-scope, ambiguous, injection, error handling and two
+deliberate known gaps. Two rule-based agents scored: v1 45.9% with 8 unsafe, v2 94.6% with 0 unsafe.
+Results committed as JSON and Markdown in `results/`. `LocalModelAgent` can score a real model over an
+OpenAI-compatible endpoint; its parsing is unit-tested but **it has never been run against a live model**,
+and no score for it is published.
 
-**Bugs found by verification (post-mortem material)**
-1. `demo.py` crashed with `UnicodeEncodeError` on a cp1252 console while passing in a UTF-8 shell. Fixed ASCII-only; guarded by `test_scripts_portable.py`; CI now re-runs the demo with `PYTHONIOENCODING=cp1252`.
-2. The page's own CSP blocked four inline styles of mine, including one set from JS. Fixed as classes; guarded by `test_dashboard_contract.py`.
+**Bugs found by verification, all now guarded**
+1. `demo.py` crashed with `UnicodeEncodeError` on a cp1252 console (post-mortem written).
+2. The dashboard's own CSP blocked four inline styles, one of them set from JS.
+3. Six light-theme text colours failed WCAG AA; writing the guard found a seventh in dark.
+4. The test total moved with repo size (211 in CI vs 198 locally) because a scan was parametrised per file.
+5. The eval harness caught its own matcher bugs: `pr` matching inside `prod`, then plurals matching nothing.
 
-**Next, in order**
-1. Mando writes `docs/adr/0001-*`. Strongest candidate: role per process vs. per-request identity.
-2. Post-mortem — candidate 1 above is the better story (environment assumption, not a typo).
-3. Project 02 (evals): tool-selection accuracy per role, 20+ cases including refusal and out-of-scope, committed before/after pass rates.
-4. Optional: drain the outbox; run once against the live GitHub API with a read-only token (every HTTP path is mocked so far).
+**Next, whoever picks this up**
+1. Project 03 (enterprise integration) is the only unstarted piece. System not chosen.
+2. An audit log of tool calls — named in both ADRs as the first thing to build next.
+3. Drain the outbox: queued alerts are stored but never redelivered.
+4. Run project 01 once against the live GitHub API with a read-only token; every HTTP path is mocked so far.
+   Needs Mando's approval (real credentials).
+5. Score a real local model with `LocalModelAgent` — needs a model runtime started, which is approval-gated.
 
 ## Session log
-- **2026-09-15**: Built project 01 end to end — scaffold, three connectors test-first, outbox fallback, runnable demo. Restructured into `projects/01-mcp-server/`, removed vendor-specific references, deployed to GitHub Pages, verified from a clean clone. Then added prompt-injection defences and secret scanning, rebuilt the dashboard to render generated data with a role switcher and failure explorer under a strict CSP, and added CI that tests on two operating systems before publishing. 27 → 170 tests.
+- **2026-09-15**: Built project 01 end to end — scaffold, three connectors test-first, outbox fallback, demo.
+  Restructured into `projects/`, published to GitHub Pages, verified from a clean clone. Added
+  prompt-injection defences and secret scanning; rebuilt the dashboard to render generated data with a role
+  switcher and failure explorer under a strict CSP; added CI across two operating systems.
+- **2026-09-17**: Wrote ADR-0001, ADR-0002 and the post-mortem. Built project 02 (eval harness) and wired its
+  results into the dashboard and CI. Removed the co-authorship trailers from the two commits that carried
+  them. Reviewer checklist now 6/6.

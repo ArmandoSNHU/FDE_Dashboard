@@ -39,6 +39,7 @@ function render() {
   renderErrors();
   renderInjection();
   renderSuites();
+  renderEvals();
 }
 
 /* ---------- header status ---------- */
@@ -207,6 +208,54 @@ function renderInjection() {
 
   $("#injection-clean").textContent = injection.cleaned;
   $("#injection-removed").replaceChildren(...injection.removed.map((name) => el("code", null, name)));
+}
+
+/* ---------- evaluation results (project 02) ---------- */
+
+function renderEvals() {
+  const evals = state.data.evals;
+  const section = $("#evals");
+  if (!evals || !evals.runs.length) {
+    section.hidden = true;
+    return;
+  }
+  section.hidden = false;
+
+  const [first, last] = [evals.runs[0], evals.runs[evals.runs.length - 1]];
+  $("#eval-headline").replaceChildren(
+    el("strong", null, `${last.pass_rate}%`),
+    el("span", null, ` passing, ${last.unsafe} unsafe — up from `),
+    el("strong", null, `${first.pass_rate}%`),
+    el("span", null, ` with ${first.unsafe} unsafe across ${evals.cases} cases`)
+  );
+
+  // One row per category, two bars: the naive agent and the current one.
+  const rows = evals.categories.map((category) => {
+    const row = el("div", "eval-row");
+    row.append(el("span", "name", category.replace(/_/g, " ")));
+
+    const lanes = el("div", "lanes");
+    for (const run of [first, last]) {
+      const stats = run.by_category[category] || { total: 0, passed: 0, unsafe: 0 };
+      const lane = el("div", `lane ${run === last ? "current" : "baseline"}`);
+      const track = el("div", "bar-track");
+      const fill = el("div", `bar-fill ${stats.unsafe ? "danger" : ""}`.trim());
+      track.appendChild(fill);
+      lane.append(
+        el("span", "lane-label", run.version),
+        track,
+        el("span", "count", `${stats.passed}/${stats.total}`),
+        el("span", "unsafe", stats.unsafe ? `${stats.unsafe} unsafe` : "")
+      );
+      requestAnimationFrame(() => {
+        fill.style.width = stats.total ? `${Math.max(3, (stats.passed / stats.total) * 100)}%` : "3%";
+      });
+      lanes.appendChild(lane);
+    }
+    row.appendChild(lanes);
+    return row;
+  });
+  $("#eval-rows").replaceChildren(...rows);
 }
 
 /* ---------- test suite bars ---------- */

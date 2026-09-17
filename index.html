@@ -52,8 +52,8 @@
     </div>
     <div role="listitem">
       <span class="label">Portfolio</span>
-      <span class="big">1 <small>/ 5 built</small></span>
-      <span class="note">2 write-ups queued, 2 projects not started</span>
+      <span class="big">2 <small>/ 5 built</small></span>
+      <span class="note">2 write-ups published, 1 project not started</span>
     </div>
   </div>
 
@@ -130,6 +130,27 @@
     </div>
   </section>
 
+  <section id="evals" aria-labelledby="evals-h" hidden>
+    <div class="section-head">
+      <h2 id="evals-h">Does the agent behave?</h2>
+      <p>Project 02 — the same cases against a naive agent and a scope-aware one</p>
+    </div>
+    <div class="two-up">
+      <div class="panel">
+        <p class="eval-headline" id="eval-headline"></p>
+        <div class="eval-rows" id="eval-rows"></div>
+      </div>
+      <div class="panel">
+        <h3>Two numbers, not one</h3>
+        <p>A tool-calling agent fails in two ways, and a single pass rate hides the difference. Being <em>unhelpful</em> — asking when it should act — is recoverable. Being <em>unsafe</em> — calling a tool the role forbids, or obeying an instruction hidden in a pull request title — pages a customer at 3am.</p>
+        <p>So both are scored, and a change that lifts the pass rate while adding an unsafe decision fails CI.</p>
+        <h3>What the gap is made of</h3>
+        <p>All eight of the baseline's unsafe decisions are the two that matter: five where it obeyed text written by a stranger, three where it called a tool its role never had. It still scores well on the easy half — which is exactly why that kind of agent ships.</p>
+        <p>Two cases stay red on purpose: conditional work it can't sequence, and a paraphrase that shares no keyword with the tool. A dataset scoring 100% has stopped being useful.</p>
+      </div>
+    </div>
+  </section>
+
   <section aria-labelledby="track-h">
     <div class="section-head">
       <h2 id="track-h">Portfolio track</h2>
@@ -160,14 +181,14 @@
       <article class="project">
         <div>
           <h3>Evaluation framework for a real use case</h3>
-          <p class="desc">20+ cases across happy path, messy input, out-of-scope and refusal; committed results with before/after pass rates.</p>
-          <p class="src mono">Candidate: tool-selection accuracy per role on fde-mcp</p>
+          <p class="desc">37 cases over reads, writes, refusals, ambiguity, injection and error handling — scored for safety as well as accuracy.</p>
+          <p class="src mono">fde-evals · results committed · 45.9% -> 94.6%, 8 unsafe -> 0</p>
         </div>
         <div>
-          <div class="stages" aria-label="Not started"><span></span><span></span><span></span><span></span><span></span></div>
-          <p class="stage-caption">Not started</p>
+          <div class="stages" aria-label="Stage 5 of 5: publishing"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="now"></span></div>
+          <p class="stage-caption">Two agents scored, results and known gaps published.</p>
         </div>
-        <span class="state pill idle">Queued</span>
+        <span class="state pill active">Publishing</span>
       </article>
 
       <article class="project">
@@ -186,27 +207,27 @@
       <article class="project">
         <div>
           <h3>Architecture Decision Record</h3>
-          <p class="desc">Situation, rejected options, decision, what it cost, what I'd revisit.</p>
-          <p class="src mono">docs/adr/TEMPLATE.md</p>
+          <p class="desc">Two written: binding authorisation to the process, and bounding what injected text can reach instead of detecting it.</p>
+          <p class="src mono">docs/adr/0001, 0002</p>
         </div>
         <div>
-          <div class="stages" aria-label="Stage 1 of 5 done"><span class="done"></span><span></span><span></span><span></span><span></span></div>
-          <p class="stage-caption">Template in place. Three candidate decisions already in the code.</p>
+          <div class="stages" aria-label="All five stages done"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span></div>
+          <p class="stage-caption">Rejected options, costs, and what would reopen each decision.</p>
         </div>
-        <span class="state pill warn">Author writing</span>
+        <span class="state pill ok">Published</span>
       </article>
 
       <article class="project">
         <div>
           <h3>Production post-mortem</h3>
-          <p class="desc">500–1,000 words: what broke, diagnosis including wrong turns, root cause, prevention.</p>
-          <p class="src mono">docs/postmortems/TEMPLATE.md</p>
+          <p class="desc">The demo crashed on every console but mine: an encoding assumption no test could catch, and the habit that found it.</p>
+          <p class="src mono">docs/postmortems/2026-09-15-demo-crash-on-legacy-console.md</p>
         </div>
         <div>
-          <div class="stages" aria-label="Stage 1 of 5 done"><span class="done"></span><span></span><span></span><span></span><span></span></div>
-          <p class="stage-caption">Template in place. Candidate: the cp1252 crash found by a clean-clone check.</p>
+          <div class="stages" aria-label="All five stages done"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span></div>
+          <p class="stage-caption">Timeline, wrong turns, root cause, and three prevention changes.</p>
         </div>
-        <span class="state pill warn">Author writing</span>
+        <span class="state pill ok">Published</span>
       </article>
     </div>
   </section>
@@ -214,7 +235,7 @@
   <section aria-labelledby="checks-h">
     <div class="section-head">
       <h2 id="checks-h">What a reviewer checks in 15 seconds</h2>
-      <p>Scored against fde-mcp today</p>
+      <p>Scored against this repo today — every line backed by a command</p>
     </div>
     <div class="checks">
       <div class="check">
@@ -239,13 +260,13 @@
       </div>
       <div class="check">
         <h3>A real eval with committed results</h3>
-        <span class="pill idle">Not started</span>
-        <p>Needs 20–50 cases, including refusal and out-of-scope prompts. That's portfolio project 02.</p>
+        <span class="pill ok">Met</span>
+        <p>37 cases with results committed as JSON and Markdown. Scored for unsafe decisions, not just accuracy, and two cases are left failing on purpose.</p>
       </div>
       <div class="check">
         <h3>Decisions can be defended in writing</h3>
-        <span class="pill idle">Not started</span>
-        <p>ADR candidates: role per process vs. per-request identity; client-side retries; the Telegram outbox fallback.</p>
+        <span class="pill ok">Met</span>
+        <p>Two ADRs with rejected options and what each choice cost, plus a post-mortem on a bug that only appeared outside my own machine.</p>
       </div>
     </div>
   </section>

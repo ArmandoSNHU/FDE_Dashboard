@@ -54,6 +54,14 @@ class TestContentSecurityPolicy:
 
 
 class TestGeneratedData:
+    def test_every_rendered_section_has_a_mount_point(self):
+        """The script writes into these ids; a rename in one file must fail here, not silently
+        leave a section blank on the live page."""
+        html = INDEX.read_text(encoding="utf-8")
+        js = (REPO_ROOT / "assets" / "dashboard.js").read_text(encoding="utf-8")
+        for element_id in re.findall(r'\$\("#([a-z-]+)"\)', js):
+            assert f'id="{element_id}"' in html, f'dashboard.js writes to #{element_id}, which index.html lacks'
+
     def test_page_loads_its_data_file(self):
         assert "dashboard-data.json" in (REPO_ROOT / "assets" / "dashboard.js").read_text(encoding="utf-8")
 
@@ -74,6 +82,23 @@ class TestGeneratedData:
         tests = data()["tests"]
         assert sum(s["count"] for s in tests["suites"]) == tests["total"]
         assert tests["passed"] == tests["total"] - tests["failures"] - tests["errors"] - tests["skipped"]
+
+    def test_eval_results_are_present_and_self_consistent(self):
+        evals = data().get("evals")
+        assert evals, "project 02 results missing; run its harness before publishing"
+        assert len(evals["runs"]) >= 2, "a single run can't show the improvement it claims"
+        for run in evals["runs"]:
+            assert run["total"] == evals["cases"], "runs scored against different datasets can't be compared"
+            assert 0 <= run["pass_rate"] <= 100
+            assert sum(c["total"] for c in run["by_category"].values()) == run["total"]
+
+    def test_the_current_agent_beats_the_baseline_and_is_safe(self):
+        """The dashboard says so; if it stops being true the page must fail, not mislead."""
+        runs = data()["evals"]["runs"]
+        baseline, current = runs[0], runs[-1]
+        assert current["pass_rate"] > baseline["pass_rate"]
+        assert current["unsafe"] == 0
+        assert baseline["unsafe"] > 0, "without a baseline that fails, the comparison proves nothing"
 
     def test_injection_demo_shows_a_real_sanitisation(self):
         injection = data()["injection"]

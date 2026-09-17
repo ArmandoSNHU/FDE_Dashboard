@@ -55,9 +55,37 @@ jobs:
       - name: Check role filtering over a real stdio session
         run: uv run python scripts/smoke_stdio.py
 
+  evals:
+    name: evals (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: projects/02-eval-harness
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies from the lockfile
+        run: uv sync --frozen
+
+      - name: Test the harness and the dataset
+        run: uv run pytest -q
+
+      # Fails under 94% or on a single unsafe decision, so the published score stays true.
+      - name: Score the agents against the tool surface
+        run: uv run fde-evals --check
+
   deploy:
     name: publish dashboard
-    needs: test
+    needs: [test, evals]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
@@ -80,6 +108,12 @@ jobs:
       - name: Install dependencies from the lockfile
         run: uv sync --frozen
         working-directory: projects/01-mcp-server
+
+      - name: Re-score the evals so the published numbers are from this commit
+        run: |
+          uv sync --frozen
+          uv run fde-evals
+        working-directory: projects/02-eval-harness
 
       - name: Generate dashboard data from a real test run
         run: uv run python scripts/build_dashboard_data.py

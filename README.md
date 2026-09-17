@@ -4,31 +4,39 @@
 
 Forward Deployed Engineering work in public. The theme across these projects is the unglamorous part of
 shipping into someone else's environment: what happens when a source is down, who is allowed to call what,
-and whether an alert that fails is actually lost. Every status below is backed by a command you can run.
+whether an agent can be talked into something by the data it reads, and whether an alert that fails is
+actually lost. Every status below is backed by a command you can run.
 
 ## For a reviewer with five minutes
 
-1. **[The dashboard](https://armandosnhu.github.io/FDE_Dashboard/)** — switch roles to see what each one may call, and open any failure kind to see the exact response a client gets.
-2. **[Project 01 README](projects/01-mcp-server/)** — the problem, why these three sources, how auth works per source, the threat model, and the failure/degradation table.
-3. **Run the demo** (no credentials, no network): `cd projects/01-mcp-server && uv sync && uv run python scripts/demo.py`
-4. **[Acceptance criteria](projects/01-mcp-server/#acceptance-criteria)** — what "done" means, and the test that proves each line.
-
-## How the dashboard stays honest
-
-Every figure on it is generated, not typed: `scripts/build_dashboard_data.py` builds the real server for
-each role, runs the real error guard for each failure kind, runs the real sanitiser over a real attack
-payload, and reads the counts out of an actual pytest report. CI runs the suite on Ubuntu and Windows,
-regenerates that data, and only then publishes the page — so a broken test can't leave a green number up.
+1. **[The dashboard](https://armandosnhu.github.io/FDE_Dashboard/)** — switch roles to see what each one may
+   call, open any failure kind to see the exact response a client gets, and see a real injection payload
+   before and after the server handles it.
+2. **Run the demo** (no credentials, no network): `cd projects/01-mcp-server && uv sync && uv run python scripts/demo.py`
+3. **[Threat model](projects/01-mcp-server/#threat-model)** — what an attacker can reach, and which layer actually stops them.
+4. **[Eval results](projects/02-eval-harness/#results)** — 45.9% → 94.6%, and 8 unsafe decisions → 0.
+5. **[ADR-0001](projects/01-mcp-server/docs/adr/0001-role-per-process-identity.md)** — the decision, the three
+   options rejected, and what the choice cost.
 
 ## Projects
 
 | # | Project | What it demonstrates | Status |
 |---|---|---|---|
-| 01 | [MCP server: GitHub + SQLite + Telegram](projects/01-mcp-server/) | Role-scoped tool access, per-source failure isolation, prompt-injection defences, alerts that survive an outage | **Working** — 3 connectors, 170 tests, runnable demo |
-| 02 | Evaluation framework | 20+ cases over happy path, messy input, out-of-scope and refusal; committed before/after pass rates | Queued |
-| 03 | Enterprise integration under real constraints | Undocumented behaviour, inconsistent data, stakeholder impact | Queued |
-| 04 | Architecture Decision Record | Rejected options, what the choice cost, what I'd revisit | [Template ready](projects/01-mcp-server/docs/adr/) |
-| 05 | Production post-mortem | Root cause beyond "the code was buggy", and prevention | [Template ready](projects/01-mcp-server/docs/postmortems/) |
+| 01 | [MCP server: GitHub + SQLite + Telegram](projects/01-mcp-server/) | Role-scoped tool access, per-source failure isolation, prompt-injection defences, alerts that survive an outage | **Working** — 3 connectors, 173 tests, runnable demo |
+| 02 | [Evaluation harness](projects/02-eval-harness/) | 37 cases over reads, refusals, ambiguity, injection and error handling — scored for unsafe decisions, not just accuracy | **Working** — 45.9% → 94.6%, 8 unsafe → 0 |
+| 03 | Enterprise integration under real constraints | Undocumented behaviour, inconsistent data, stakeholder impact | Not started |
+| 04 | [Architecture Decision Records](projects/01-mcp-server/docs/adr/) | Rejected options, what each choice cost, what would reopen it | **Published** — [0001](projects/01-mcp-server/docs/adr/0001-role-per-process-identity.md), [0002](projects/01-mcp-server/docs/adr/0002-untrusted-input-strategy.md) |
+| 05 | [Production post-mortem](projects/01-mcp-server/docs/postmortems/2026-09-15-demo-crash-on-legacy-console.md) | Root cause beyond "the code was buggy", and what changed to prevent it | **Published** |
+
+## How the numbers stay honest
+
+Every figure on the dashboard is generated, not typed: `scripts/build_dashboard_data.py` builds the real
+server for each role, runs the real error guard for each failure kind, runs the real sanitiser over a real
+attack payload, and reads counts out of an actual pytest report and the committed eval results.
+
+CI runs both projects' suites on Ubuntu and Windows, re-scores the evals with a gate that fails under 94%
+or on a single unsafe decision, regenerates the dashboard data, and only then publishes the page. A broken
+test can't leave a green number up.
 
 ## Layout
 
@@ -37,19 +45,24 @@ index.html                  portfolio dashboard, rendered from dashboard-data.js
 assets/                     dashboard styles and script (strict CSP: no inline script or style)
 dashboard-data.json         generated by the test run — never edited by hand
 .github/workflows/ci.yml    tests on Ubuntu + Windows, then regenerate and publish
-projects/01-mcp-server/     project 1: fde-mcp (own README, tests, docs)
+projects/01-mcp-server/     the MCP server, its threat model, ADRs and post-mortem
+projects/02-eval-harness/   the eval dataset, scorer and committed results
 STATE.md                    current state and restart point for the whole portfolio
 ```
 
-## Run project 01
+## Run it
 
 ```powershell
 cd projects/01-mcp-server
 uv sync
 uv run python scripts/demo.py          # scripted incident against the real server
-uv run pytest -q                       # 170 passed
+uv run pytest -q                       # 173 passed
 uv run python scripts/smoke_stdio.py   # tool visibility per role
-uv run python scripts/build_dashboard_data.py   # regenerate the dashboard's figures
+
+cd ../02-eval-harness
+uv sync
+uv run fde-evals                       # rescore both agents, rewrite results/
+uv run pytest -q                       # 34 passed
 ```
 
 ---
