@@ -25,6 +25,7 @@ from __future__ import annotations
 import asyncio
 import sqlite3
 from collections.abc import Callable
+from contextlib import closing
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -67,7 +68,7 @@ class SQLiteConnector(Connector):
         limit = self._validate_limit(limit)
 
         def query() -> list[dict[str, Any]]:
-            with self._connect(readonly=True) as conn:
+            with closing(self._connect(readonly=True)) as conn, conn:
                 return [dict(row) for row in conn.execute(RECENT_DEPLOYMENTS, (customer, limit))]
 
         return await self._run(query)
@@ -83,7 +84,7 @@ class SQLiteConnector(Connector):
             )
 
         def write() -> dict[str, Any]:
-            with self._connect(readonly=False) as conn:
+            with closing(self._connect(readonly=False)) as conn, conn:
                 cursor = conn.execute(
                     "INSERT INTO incidents (customer, summary, severity) VALUES (?, ?, ?) RETURNING id, created_at",
                     (customer, summary, severity),
@@ -100,7 +101,7 @@ class SQLiteConnector(Connector):
         message = self._require_text(message, "message")
 
         def write() -> int:
-            with self._connect(readonly=False) as conn:
+            with closing(self._connect(readonly=False)) as conn, conn:
                 cursor = conn.execute(
                     "INSERT INTO alert_outbox (message, severity, reason) VALUES (?, ?, ?) RETURNING id",
                     (message, severity, reason),
@@ -118,8 +119,12 @@ class SQLiteConnector(Connector):
         assert self._db_path is not None  # guarded by _require_configured
         uri = self._db_path.resolve().as_uri()
         conn = sqlite3.connect(f"{uri}?mode=ro" if readonly else uri, uri=True, timeout=self._busy_timeout_ms / 1000)
-        conn.row_factory = sqlite3.Row
-        conn.execute(f"PRAGMA busy_timeout = {self._busy_timeout_ms}")
+        try:
+            conn.row_factory = sqlite3.Row
+            conn.execute(f"PRAGMA busy_timeout = {self._busy_timeout_ms}")
+        except Exception:
+            conn.close()
+            raise
         return conn
 
     async def _run(self, work: Callable[[], T]) -> T:

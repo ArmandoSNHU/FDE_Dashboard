@@ -2,7 +2,7 @@
 
 Project 1 of the [FDE portfolio](../../README.md). Run commands from this directory.
 
-**Author:** Armando Gomez · **Status:** working — all three connectors implemented, 170 tests passing, `scripts/demo.py` runs the whole thing with no credentials
+**Author:** Armando Gomez · **Status:** working — all three connectors implemented, 180 tests passing, `scripts/demo.py` runs the whole thing with no credentials
 
 ## The problem
 
@@ -198,3 +198,6 @@ What "done" means for this server, and where each is proven:
 - `github_list_open_prs` returns the first page only (100 PRs). Deeper history is a job for the ops DB, not this tool.
 - No eval harness yet for "does the model pick the right tool under each role" — that's portfolio project 02.
 - Tested against mocked HTTP. The GitHub and Telegram paths have never run against the live APIs.
+
+## Connection lifecycle
+Each SQLite operation owns and closes its connection in its worker thread. The transaction context commits or rolls back; explicit closing releases the connection on both success and failure. Connection configuration failures also close the handle. See [the contribution record](docs/CONTRIBUTION.md).

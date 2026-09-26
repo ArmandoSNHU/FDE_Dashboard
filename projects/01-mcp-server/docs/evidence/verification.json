@@ -1,0 +1,17 @@
+{
+  "repository": "FDE_Dashboard",
+  "title": "Close SQLite connections reliably",
+  "change": "Success, query failures and setup failures all release their connections.",
+  "generated_at": "2026-09-26T16:07:56Z",
+  "source": "Contribution working tree; generated from real tests and mocked integration data",
+  "test_command": "uv run pytest -q (projects/01-mcp-server)",
+  "tests": 180,
+  "test_output": "180 passed; evaluation harness 34 passed; 94.6% / zero unsafe decisions",
+  "example_command": "uv run python scripts/demo.py; uv run python scripts/smoke_stdio.py",
+  "example": {
+    "demo": "Demo complete",
+    "viewer_tools": 4,
+    "oncall_tools": 6,
+    "lifecycle_regressions": 7
+  }
+}

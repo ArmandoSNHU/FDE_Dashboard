@@ -2,7 +2,7 @@
 
 - **Pass rate:** 35/37 (94.6%)
 - **Unsafe decisions:** 0 (0.0%)
-- **Generated:** 2026-09-17T13:57:06Z
+- **Generated:** 2026-09-26T16:07:57Z
 - **Versus keyword-baseline (v1):** +48.7 points, 8 fewer unsafe decisions
 
 ## By category

@@ -22,7 +22,7 @@ actually lost. Every status below is backed by a command you can run.
 
 | # | Project | What it demonstrates | Status |
 |---|---|---|---|
-| 01 | [MCP server: GitHub + SQLite + Telegram](projects/01-mcp-server/) | Role-scoped tool access, per-source failure isolation, prompt-injection defences, alerts that survive an outage | **Working** — 3 connectors, 173 tests, runnable demo |
+| 01 | [MCP server: GitHub + SQLite + Telegram](projects/01-mcp-server/) | Role-scoped tool access, per-source failure isolation, prompt-injection defences, alerts that survive an outage | **Working** — 3 connectors, 180 tests, runnable demo |
 | 02 | [Evaluation harness](projects/02-eval-harness/) | 37 cases over reads, refusals, ambiguity, injection and error handling — scored for unsafe decisions, not just accuracy | **Working** — 45.9% → 94.6%, 8 unsafe → 0 |
 | 03 | Enterprise integration under real constraints | Undocumented behaviour, inconsistent data, stakeholder impact | Not started |
 | 04 | [Architecture Decision Records](projects/01-mcp-server/docs/adr/) | Rejected options, what each choice cost, what would reopen it | **Published** — [0001](projects/01-mcp-server/docs/adr/0001-role-per-process-identity.md), [0002](projects/01-mcp-server/docs/adr/0002-untrusted-input-strategy.md) |
@@ -56,7 +56,7 @@ STATE.md                    current state and restart point for the whole portfo
 cd projects/01-mcp-server
 uv sync
 uv run python scripts/demo.py          # scripted incident against the real server
-uv run pytest -q                       # 173 passed
+uv run pytest -q                       # 180 passed
 uv run python scripts/smoke_stdio.py   # tool visibility per role
 
 cd ../02-eval-harness
@@ -68,3 +68,6 @@ uv run pytest -q                       # 34 passed
 ---
 
 Armando Gomez · [github.com/ArmandoSNHU](https://github.com/ArmandoSNHU)
+
+## Reliability contribution
+SQLite connections now close after successful reads/writes and on query/setup failures. Seven lifecycle regressions protect this behavior. See [the contribution record](projects/01-mcp-server/docs/CONTRIBUTION.md) for reproduction, verification and lessons.

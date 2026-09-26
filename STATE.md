@@ -2,7 +2,10 @@
 
 Single state file for the whole repo. Project-level detail lives in each project's README and AGENTS.md.
 
-## Restart Point (2026-09-17)
+## Restart Point (2026-09-26 contribution)
+SQLite lifetime fix on contribution/techops-reliability. Seven regressions failed first, then server 180 passed (3.35s); evaluation baseline 34 passed, score 94.6% / zero unsafe unchanged. Demo complete and stdio smoke verified viewer/oncall scopes. See projects/01-mcp-server/docs/CONTRIBUTION.md. Reproduce with uv run pytest -q in each project. No real credentials, model runtime or external sends. Publishing a reviewable PR is authorized by the current user request and prior full-permissions instruction.
+
+## Previous release baseline (2026-09-17)
 
 **Verify first:**
 - `projects/01-mcp-server`: `uv sync` then `uv run pytest -q` → expect `173 passed`

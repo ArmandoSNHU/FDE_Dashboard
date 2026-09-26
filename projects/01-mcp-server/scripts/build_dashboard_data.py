@@ -31,6 +31,7 @@ REPO_ROOT = PROJECT.parents[1]
 OUT = REPO_ROOT / "dashboard-data.json"
 
 SUITE_LABELS = {
+    "test_sqlite_lifecycle": ("lifecycle", "SQLite handles close on success and failure"),
     "test_github_connector": ("github", "GitHub failure classification"),
     "test_sqlite_connector": ("sqlite", "SQLite read-only path, locks, corruption"),
     "test_telegram_connector": ("telegram", "Telegram dry-run, rate limits, token leaks"),
