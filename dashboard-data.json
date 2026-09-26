@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-09-17T13:57:10Z",
+  "generated_at": "2026-09-26T16:13:15Z",
   "git": {
-    "sha": "43fb9372755c2fdd6872c36438d4edd112270637",
-    "short": "43fb937",
-    "subject": "Fix WCAG AA contrast failures in both themes; guard the palette with tests",
-    "committed_at": "2026-09-15T22:16:52-05:00",
-    "commits": "9"
+    "sha": "199d0f1e8ec4b9d6d98d4e7cb63ff6c4e3bfc382",
+    "short": "199d0f1",
+    "subject": "Close SQLite handles on success and failures; 180 server and 34 eval tests pass",
+    "committed_at": "2026-09-26T11:13:14-05:00",
+    "commits": "12"
   },
   "tests": {
-    "total": 173,
+    "total": 180,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "duration_s": 3.17,
-    "passed": 173,
+    "duration_s": 3.34,
+    "passed": 180,
     "suites": [
       {
         "key": "github",
@@ -68,6 +68,11 @@
       {
         "key": "injection",
         "what": "Injection can't reach a tool it wasn't granted",
+        "count": 7
+      },
+      {
+        "key": "lifecycle",
+        "what": "SQLite handles close on success and failure",
         "count": 7
       },
       {
