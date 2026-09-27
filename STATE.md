@@ -74,3 +74,7 @@ already clean.
   agents scored) and wired its results into the dashboard and CI. Reviewer checklist now 6/6. Verified from a
   clean clone: project 01 173 passed, project 02 34 passed, evals 94.6% with 0 unsafe, demo completes, CI
   green on all five jobs. Commit-message trailers still pending — see the blocked item above.
+
+## 2026-09-27 — repository security controls
+Author: Armando Gomez. User authorized the recommended security hardening and review-branch publication. Main protection, required PR/checks, admin enforcement, strict base freshness, resolved conversations, force-push/deletion denial, secret scanning/push protection, vulnerability alerts and automatic security fixes were enabled and verified through GitHub API read-back. No extra approving reviewer is required for the solo owner; checks remain mandatory. Added pinned Actions, read-only permissions, no persisted checkout credentials, and weekly Dependabot configuration. Branch changes remain unmerged; default-branch schedules activate after merge.
+Both frozen lockfile audits returned `No known vulnerabilities found` (pip-audit2.10.1). Added PR/push/weekly dependency audit. Fresh verification:180 server tests and34 eval tests passed; scope-aware35/37 (94.6%),0unsafe. Runtime source unchanged in this pass. See SECURITY.md.

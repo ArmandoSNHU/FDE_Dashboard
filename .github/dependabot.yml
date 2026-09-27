@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: pip
+    directory: /projects/01-mcp-server
+    schedule:
+      interval: weekly
+  - package-ecosystem: pip
+    directory: /projects/02-eval-harness
+    schedule:
+      interval: weekly
