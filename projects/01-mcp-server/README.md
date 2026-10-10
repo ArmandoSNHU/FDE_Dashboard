@@ -38,6 +38,7 @@ The registry in `src/fde_mcp/tools/registry.py` is the source of truth. `tests/t
 | `github_list_open_prs` | `github:read` | GitHub | none |
 | `github_get_issue` | `github:read` | GitHub | none |
 | `db_recent_deployments` | `db:read` | SQLite | none |
+| `db_recent_incidents` | `db:read` | SQLite | none |
 | `db_log_incident` | `db:write` | SQLite | inserts a row |
 | `telegram_send_alert` | `telegram:notify` | Telegram | messages humans |
 

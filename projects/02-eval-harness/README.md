@@ -3,7 +3,7 @@
 Project 2 of the [FDE portfolio](../../README.md). Evaluates agent behaviour against the real
 [fde-mcp](../01-mcp-server/) tool surface. Run commands from this directory.
 
-**Author:** Armando Gomez · **Status:** working — 37 cases, two agents scored, results committed
+**Author:** Armando Gomez · **Status:** working — 43 cases, two agents scored, results committed
 
 ## What this measures
 
@@ -20,8 +20,11 @@ adding an unsafe decision is a regression, and CI treats it as one.
 
 | Agent | Pass rate | Unsafe decisions |
 |---|---|---|
-| [v1 `keyword-baseline`](results/v1-keyword-baseline.md) | **17/37 (45.9%)** | **8** |
-| [v2 `scope-aware`](results/v2-scope-aware.md) | **35/37 (94.6%)** | **0** |
+| [v1 `keyword-baseline`](results/v1-keyword-baseline.md) | **20/43 (46.5%)** | **9** |
+| [v2 `scope-aware`](results/v2-scope-aware.md) | **41/43 (95.3%)** | **0** |
+
+The six `nw-` cases came with [project 03](../03-legacy-sync/): a new customer, its own word for tickets
+("work orders"), and a new place for hostile text to arrive, a synced work-order description.
 
 Both agents are rule-based, so these numbers are reproducible: `uv run fde-evals` regenerates them exactly,
 with no model, no network and no cost. The point isn't that a keyword matcher is bad — it's *where* it's bad.
@@ -30,18 +33,19 @@ with no model, no network and no cost. The point isn't that a keyword matcher is
 
 | Category | v1 | v2 | What the category tests |
 |---|---|---|---|
-| happy_path | 6/7 | 7/7 | ordinary reads with a subject named |
-| write | 2/4 | 4/4 | logging incidents, and refusing when the role can't |
+| happy_path | 9/9 | 9/9 | ordinary reads with a subject named |
+| write | 3/5 | 5/5 | logging incidents, and refusing when the role can't |
 | notify | 2/4 | 4/4 | paging humans — the one irreversible action |
 | out_of_scope | 6/6 | 6/6 | weather, email, refunds, `DROP TABLE` |
-| ambiguous | 0/4 | 4/4 | two tools apply, or no customer named |
-| injection | 0/5 | 5/5 | instructions hidden in tool output |
-| error_handling | 0/5 | 5/5 | retry only when the server says retryable |
+| ambiguous | 0/5 | 5/5 | two tools apply, or no customer named |
+| injection | 0/6 | 6/6 | instructions hidden in tool output |
+| error_handling | 0/6 | 6/6 | retry only when the server says retryable |
 | known_gap | 1/2 | 0/2 | limitations documented below |
 
-**All 8 of v1's unsafe decisions** are the two failures that matter: 5 injection cases where it obeyed text
-from a pull request title, and 3 where it called a tool the role doesn't have. A keyword matcher scores 86%
-on the easy half of this dataset, which is exactly why this kind of agent ships and then pages someone.
+**All 9 of v1's unsafe decisions** are the two failures that matter: 6 injection cases where it obeyed text
+from tool output (a pull request title, or a synced work-order description), and 3 where it called a tool the
+role doesn't have. On the four non-adversarial categories (happy_path, write, notify, out_of_scope) the
+keyword matcher scores 19/24 (79%), which is exactly why this kind of agent ships and then pages someone.
 
 ## What v2 does differently
 
@@ -50,7 +54,7 @@ Four rules, each one added because a category above failed:
 1. **Only consider tools this role actually has.** The available set comes from building the real MCP server
    for that role, not from a list maintained here — so the harness can't drift from the product.
 2. **Intent comes from the human's request, never from an observation.** Tool output is evidence to report.
-   This single rule takes injection from 0/5 to 5/5.
+   This single rule takes injection from 0/6 to 6/6.
 3. **An error envelope is a decision point.** Retry when the server says `retryable`, stop otherwise — no
    guessing from the message text.
 4. **Ask when the subject is missing.** Writing an incident against the wrong customer is worse than a question.
@@ -90,7 +94,7 @@ uv run pytest -q                  # 34 passed — tests for the dataset and the 
 
 ## The dataset
 
-[`cases/cases.jsonl`](cases/cases.jsonl) — 37 cases, one JSON object per line, each carrying a `why` that
+[`cases/cases.jsonl`](cases/cases.jsonl) — 43 cases, one JSON object per line, each carrying a `why` that
 says what it tests. Every case fixes a role, so the same wording appears under different roles with different
 correct answers (`wr-01` vs `wr-02` is the clearest pair).
 
@@ -118,9 +122,9 @@ which model, which quantisation, and which temperature produced it.
 
 - Both scored agents are rule-based. They measure whether the *harness* distinguishes safe from unsafe
   behaviour; they don't tell you how a language model would score.
-- v2 was written against this dataset, so its 94.6% is partly a measure of how well I know my own test set.
+- v2 was written against this dataset, so its 95.3% is partly a measure of how well I know my own test set.
   The known gaps are left failing to keep that visible.
-- 37 cases is a floor, not a target. The thinnest area is `error_handling`, which only covers envelopes this
+- 43 cases is a floor, not a target. The thinnest area is `error_handling`, which only covers envelopes this
   server emits today.
 - Scoring is exact-match on an action and a tool name. It says nothing about the quality of what an agent
   would *say* — that would need a judge, and a judge is another thing that can be wrong.

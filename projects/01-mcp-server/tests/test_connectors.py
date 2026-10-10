@@ -45,7 +45,7 @@ async def test_unconfigured_connector_raises_not_configured():
     ("cls", "methods"),
     [
         (GitHubConnector, ["list_open_pulls", "get_issue"]),
-        (SQLiteConnector, ["recent_deployments", "log_incident"]),
+        (SQLiteConnector, ["recent_deployments", "recent_incidents", "log_incident"]),
         (TelegramConnector, ["send_alert"]),
     ],
 )
