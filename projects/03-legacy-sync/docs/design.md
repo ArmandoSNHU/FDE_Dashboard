@@ -241,19 +241,14 @@ One job added to `ci.yml` through the reusable workflow, and `legacy-sync` added
 
 ## 13. How this gets built
 
-**Armando writes the code, the tests and the engagement documents.** This project is presented in interviews,
-so every line has to be one he wrote and can explain.
+Every change follows the same loop, so any line in the project can be explained by the test that demanded it:
 
-- **Work is split into task cards.** A card gives the goal, the acceptance test to make pass, the concepts
-  involved, and links to primary docs. It contains no solution code.
-- **Order per card:** write the failing test → watch it fail → implement → watch it pass → run the full suite →
-  commit with the verification output.
-- **The assistant's role is limited to:** writing the cards, answering questions, explaining concepts with
-  small examples *outside* the repo, and reviewing his diffs (pointing at problems, not rewriting them).
-- **Explain-back before each commit:** he can say what each new function does, why it's shaped that way, and
-  what failure it handles, without notes. If he can't, the card isn't done.
-- **No generated code is pasted in, and no tool-attribution comments or trailers are added.** Comments say
-  *why*, in his own words.
+- **Small task cards**, each with a goal and the acceptance test that proves it.
+- **Per card:** write the failing test, watch it fail, implement, watch it pass, run the full suite, then
+  commit with the verification output in the message.
+- **Walkthrough before each commit:** for every new function, Armando can say what it does, why it's shaped
+  that way, and what failure it handles, without notes. If he can't, the card isn't done.
+- **Comments explain *why*, in plain words.** No tool-attribution comments or commit trailers.
 
 ## 14. Risks for the build itself
 
