@@ -53,7 +53,7 @@ uv run fde-evals --check                 # the CI gate: exit 1 under 94% or on a
 ```powershell
 cd ../03-legacy-sync
 uv sync
-uv run pytest -q                         # 72 passed
+uv run pytest -q                         # 76 passed
 uv run python scripts/demo.py            # dry-run -> apply -> re-run (0 writes) -> fde-mcp reads northwind
 uv run fde-sync --db path/to/ops.db      # dry run by default: shows what would change, writes nothing
 uv run fde-sync --db path/to/ops.db --apply --report report.md

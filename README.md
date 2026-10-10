@@ -27,7 +27,7 @@ actions, a candid review of the pipeline, and the questions I expect, each answe
 |---|---|---|---|
 | 01 | [MCP server: GitHub + SQLite + Telegram](projects/01-mcp-server/) | Role-scoped tool access, per-source failure isolation, prompt-injection defences, alerts that survive an outage | **Working** — 3 connectors, 181 tests, runnable demo |
 | 02 | [Evaluation harness](projects/02-eval-harness/) | 43 cases over reads, refusals, ambiguity, injection and error handling — scored for unsafe decisions, not just accuracy | **Working** — 46.5% → 95.3%, 9 unsafe → 0 |
-| 03 | [Legacy work-order sync: a simulated engagement](projects/03-legacy-sync/) | A legacy system that contradicts its own docs, synced into the ops DB on real NYC 311 data; scope, risks, a change request and handoff documented | **Working** — 72 tests, runnable demo; engagement documents in progress |
+| 03 | [Legacy work-order sync: a simulated engagement](projects/03-legacy-sync/) | A legacy system that contradicts its own docs, synced into the ops DB on real NYC 311 data; scope, risks, a change request and handoff documented | **Working** — 76 tests, runnable demo, engagement documents complete |
 | 04 | [Architecture Decision Records](projects/01-mcp-server/docs/adr/) | Rejected options, what each choice cost, what would reopen it | **Published** — [0001](projects/01-mcp-server/docs/adr/0001-role-per-process-identity.md), [0002](projects/01-mcp-server/docs/adr/0002-untrusted-input-strategy.md) |
 | 05 | [Production post-mortem](projects/01-mcp-server/docs/postmortems/2026-09-15-demo-crash-on-legacy-console.md) | Root cause beyond "the code was buggy", and what changed to prevent it | **Published** |
 
@@ -75,7 +75,7 @@ cd ../03-legacy-sync
 uv sync
 uv run python scripts/demo.py          # dry-run, apply, re-run, then the MCP server reads the result
 uv run fde-sync --db <ops.db>          # dry run by default; --apply to write
-uv run pytest -q                       # 72 passed
+uv run pytest -q                       # 76 passed
 ```
 
 ---

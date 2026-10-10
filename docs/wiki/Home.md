@@ -41,7 +41,7 @@ strangers.
 
 | Claim | Proof |
 |---|---|
-| 185 tests pass in project 01, 34 in project 02, 72 in project 03 | `uv run pytest -q` in each project directory |
+| 185 tests pass in project 01, 34 in project 02, 76 in project 03 | `uv run pytest -q` in each project directory |
 | v2 scores 95.3% with 0 unsafe | `uv run fde-evals --check` in `projects/02-eval-harness` |
 | A role can't see or call tools outside its scopes | `tests/test_server.py`, live in `scripts/smoke_stdio.py` |
 | CI covers every project and the cp1252 guard stays wired | `tests/test_ci_contract.py` |

@@ -103,6 +103,46 @@ confirmed each break failed exactly the intended test. A guard you've never seen
 With a multi-line command under pwsh, only the last line's exit code counts. A failing demo followed by a
 passing smoke test would go green. bash with `-e` makes every line count.
 
+## Running an engagement (project 03)
+
+**Q: Walk me through a project you managed end to end.**
+Northwind, a facilities company. It's a simulated customer, but the data is 500 real NYC 311 records. They
+asked for their work orders in our on-call platform. In discovery I asked what people *do* today, and found
+the dispatch manager acting as a human API at 2am, plus a status code that had changed meaning mid-year and
+had sent an engineer to a closed ticket. So I restated the problem: not "copy the tickets" but "nobody
+trusts ticket status". I wrote a SOW with eight acceptance criteria, each tied to a test, ran it in four
+weeks with weekly status reports, absorbed one change request, and handed off with a tested rollback.
+→ [`engagement/README.md`](../../projects/03-legacy-sync/engagement/README.md)
+
+**Q: How did you handle scope creep?**
+In week 2 the senior technician offered his completion spreadsheet as a third source. Instead of arguing
+about it, I ran a half-day spike. Joined on work-order number, 60 of 60 rows were ambiguous, because IDs
+repeat per region. I wrote an impact analysis and the sponsor deferred it to phase 2, with one ask:
+Northwind adds a Region column, which turns a fuzzy match into an exact key. The go-live date didn't move.
+→ [CR-001](../../projects/03-legacy-sync/engagement/change-requests/CR-001.md)
+
+**Q: The customer's documentation was wrong. How did you find out, and what did you do?**
+I sat with the person who uses the system every day rather than trusting the guide. In an hour he showed
+me three things it got wrong: IDs repeat across regions, times are local while claiming UTC, and paging
+drops records under load. Before building the sync, I reproduced each behaviour in a mock and pinned it
+with a test. Every rule in the code points back to a numbered discovery finding.
+
+**Q: What went wrong?**
+Our own platform had gaps. It could write incidents but not read them back, which put the go-live at risk;
+I reported that as amber in week 2 and fixed it in week 3. Running the demo also showed that alerts and
+incidents grade severity in different vocabularies. Both are in the RAID log as issues, not hidden.
+
+**Q: Why trust the nightly export over the live API?**
+Because on everything we measured the API was the less reliable source: it missed 6 records, served 20
+stale values, and reported the wrong time zone. The export decides what's loaded; the API checks it, and
+every disagreement goes in the report. The cost is up to a day of staleness, which is acceptable for an
+overnight on-call engineer. ADR-0003 says what would reopen the decision.
+
+**Q: How do you know the sync is safe to run?**
+It's a dry run by default, and a dry run leaves the database byte-identical. A run is one transaction, so
+a failure leaves nothing half-written. A second run over the same data writes zero rows. And the rollback
+is a tested SQL file, not a paragraph.
+
 ## Working with customers
 
 **Q: How does this translate to a customer engagement?**
@@ -112,6 +152,6 @@ effects off until a human turns them on. A state file and restart point so the n
 up without me. And verification in *their* environment, because mine proved to be the wrong place to test.
 
 **Q: What would you build next?**
-In order: confirm the new pipeline is green on GitHub; add a guard so typed test counts can't drift (it
-already happened once, 170 vs 173); pin actions to SHAs; then project 03, an enterprise integration against
-undocumented behaviour and messy data. → [Review](Review.md)
+In order: confirm the pipeline is green on GitHub; add a guard so typed test counts can't drift (it
+already happened once, 170 vs 173); pin actions to SHAs; then phase 2 for Northwind: the spreadsheet on
+an exact key, and a status column in the platform. → [Review](Review.md)

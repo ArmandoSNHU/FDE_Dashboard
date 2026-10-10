@@ -1,0 +1,9 @@
+field,type,required,allowed_values,notes
+wo_id,string,yes,,"Work order number, unique"
+region,string,yes,EAST|METRO|CENTRAL,
+opened_at,datetime,yes,,UTC
+status,char(1),yes,O|A|C,"O open, A assigned, C closed"
+priority,char(2),yes,P1|P2|P3|P4,P1 = emergency
+trade,string,yes,HVAC|PLUMBING|ELECTRICAL|ELEVATOR|GENERAL,
+site,string,yes,,Street address
+description,string,no,,Free text from intake

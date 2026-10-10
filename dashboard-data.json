@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-10-10T21:26:18Z",
+  "generated_at": "2026-10-10T21:35:01Z",
   "git": {
-    "sha": "3dc25fb1b657511281c2963d7a6e4c8883f9bdb7",
-    "short": "3dc25fb",
-    "subject": "Add an incidents read tool and score the new customer",
-    "committed_at": "2026-10-10T16:20:28-05:00",
-    "commits": "24"
+    "sha": "164603899952d12d0db324060a081ebb3926ebdb",
+    "short": "1646038",
+    "subject": "Wire project 03 end to end: demo, CI job, dashboard numbers from a real run",
+    "committed_at": "2026-10-10T16:28:07-05:00",
+    "commits": "25"
   },
   "tests": {
     "total": 185,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "duration_s": 3.25,
+    "duration_s": 3.42,
     "passed": 185,
     "suites": [
       {

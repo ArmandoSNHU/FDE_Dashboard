@@ -97,4 +97,4 @@ first push is the real test. That push is approval-gated, so this stays at a loc
 1. Push and confirm the new pipeline is green on GitHub, then update any required-check names.
 2. Finding 1: the prose-count guard. It's cheap and closes the exact gap that let 170 vs 173 slip through.
 3. Finding 2: SHA-pin the actions.
-4. Project 03 (see `STATE.md`): an enterprise integration under real constraints.
+4. ~~Project 03~~ Done: [`projects/03-legacy-sync`](../../projects/03-legacy-sync/). Its phase 2 list is in its [handoff](../../projects/03-legacy-sync/engagement/handoff.md).

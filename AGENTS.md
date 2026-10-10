@@ -12,6 +12,9 @@ Each project owns its own README, tests, and docs; **each project directory has 
 - `projects/01-mcp-server/` — the MCP server (fde-mcp), plus its ADRs and post-mortem under `docs/`.
 - `projects/02-eval-harness/` — the eval dataset and scorer (fde-evals). Depends on project 01 by path;
   its committed `results/` feed the dashboard, so re-run `uv run fde-evals` after changing either project.
+- `projects/03-legacy-sync/` — the legacy work-order sync (fde-sync) and its simulated customer engagement under
+  `engagement/`. Writes into project 01's ops DB schema; its `results/sync-run.json` feeds the dashboard, so
+  re-run `uv run python scripts/record_run.py` after changing the sync or its data.
 
 ## Layout rules
 - Code lives under `projects/<NN>-<slug>/`. Never add source at the repo root.
