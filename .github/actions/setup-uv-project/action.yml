@@ -1,0 +1,26 @@
+name: Set up a uv project
+description: >
+  Install uv and sync one project's environment exactly from its lockfile.
+  The only place in the repo that pins the uv installer, so a tool bump is a one-line change.
+
+inputs:
+  working-directory:
+    description: Project directory containing pyproject.toml and uv.lock, relative to the repo root.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        # Key the cache on this project's lockfile, so two projects never share a stale cache.
+        cache-dependency-glob: ${{ inputs.working-directory }}/uv.lock
+
+    # --frozen fails if uv.lock is out of date instead of silently re-resolving:
+    # CI installs what was reviewed, not what PyPI serves today.
+    - name: Install dependencies from the lockfile
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: uv sync --frozen

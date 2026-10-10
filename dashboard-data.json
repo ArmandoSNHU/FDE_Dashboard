@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-09-17T13:57:10Z",
+  "generated_at": "2026-10-10T20:44:45Z",
   "git": {
-    "sha": "43fb9372755c2fdd6872c36438d4edd112270637",
-    "short": "43fb937",
-    "subject": "Fix WCAG AA contrast failures in both themes; guard the palette with tests",
-    "committed_at": "2026-09-15T22:16:52-05:00",
-    "commits": "9"
+    "sha": "974ab0ad74ca1b3a26d70fdf3dcf8562acc0f02c",
+    "short": "974ab0a",
+    "subject": "Record verified state and the one blocked cleanup item",
+    "committed_at": "2026-09-17T13:17:51-05:00",
+    "commits": "11"
   },
   "tests": {
-    "total": 173,
+    "total": 181,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "duration_s": 3.17,
-    "passed": 173,
+    "duration_s": 3.11,
+    "passed": 181,
     "suites": [
       {
         "key": "github",
@@ -58,6 +58,11 @@
       {
         "key": "fallback",
         "what": "Alert survives a Telegram outage",
+        "count": 8
+      },
+      {
+        "key": "ci",
+        "what": "CI covers every project through one reusable workflow",
         "count": 8
       },
       {

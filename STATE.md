@@ -2,10 +2,10 @@
 
 Single state file for the whole repo. Project-level detail lives in each project's README and AGENTS.md.
 
-## Restart Point (2026-09-17)
+## Restart Point (2026-10-10)
 
 **Verify first:**
-- `projects/01-mcp-server`: `uv sync` then `uv run pytest -q` → expect `173 passed`
+- `projects/01-mcp-server`: `uv sync` then `uv run pytest -q` → expect `181 passed`
 - `projects/01-mcp-server`: `uv run python scripts/demo.py` → ends with "Demo complete"
 - `projects/02-eval-harness`: `uv sync` then `uv run pytest -q` → expect `34 passed`
 - `projects/02-eval-harness`: `uv run fde-evals --check` → v2 at 94.6%, 0 unsafe
@@ -14,9 +14,12 @@ Single state file for the whole repo. Project-level detail lives in each project
 **Repo state**
 - Published: GitHub `ArmandoSNHU/FDE_Dashboard` (public), branch `main`. Dashboard:
   https://armandosnhu.github.io/FDE_Dashboard/ — Pages builds from GitHub Actions, not from the branch.
-- CI (`.github/workflows/ci.yml`): both projects tested on Ubuntu + Windows, demo re-run under
-  `PYTHONIOENCODING=cp1252`, evals gated at 94% with zero unsafe, then the dashboard data is regenerated and
-  the site published.
+- CI: `ci.yml` calls the reusable `python-project.yml` once per project (Ubuntu + Windows), setup lives in the
+  composite action `.github/actions/setup-uv-project`; demo re-run under `PYTHONIOENCODING=cp1252`, evals gated
+  at 94% with zero unsafe, then the dashboard data is regenerated and the site published.
+  `tests/test_ci_contract.py` pins that shape. **The refactored CI (2026-10-10) is committed locally and has
+  not run on GitHub yet** -- it needs a push (Mando's approval), then check the required-check names.
+- Interview wiki: `docs/wiki/` (Home, CLI-Workflow, Reusable-Actions, Review, Interview-QA).
 - Verified from a clean clone of the public repo.
 - `D:\FDE_Dash\.venv` from the pre-restructure layout is stale and can be deleted (path protection blocks it
   from this session).
@@ -63,6 +66,11 @@ already clean.
 5. Score a real local model with `LocalModelAgent` — needs a model runtime started, which is approval-gated.
 
 ## Session log
+- **2026-10-10**: Factored CI into a composite action (`setup-uv-project`) and a reusable workflow
+  (`python-project.yml`); added `test_ci_contract.py` (8 tests, mutation-checked 3 ways), actionlint clean.
+  Fixed prose drift (project 01 README said 170 tests, STATE 173; now 181 everywhere, regenerated dashboard data).
+  Wrote `docs/wiki/` for interview reviewers. Verified: project 01 181 passed, project 02 34 passed, evals 94.6%
+  with 0 unsafe, demo completes. Not pushed.
 - **2026-09-15**: Built project 01 end to end — scaffold, three connectors test-first, outbox fallback, demo.
   Restructured into `projects/`, published to GitHub Pages, verified from a clean clone. Added
   prompt-injection defences and secret scanning; rebuilt the dashboard to render generated data with a role

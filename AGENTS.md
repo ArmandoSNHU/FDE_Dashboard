@@ -17,6 +17,9 @@ Each project owns its own README, tests, and docs; **each project directory has 
 - Code lives under `projects/<NN>-<slug>/`. Never add source at the repo root.
 - Each project is independently runnable: its own `pyproject.toml` and venv, commands run from its directory.
 - `index.html` at the repo root is the dashboard: static, hand-written, no build step. GitHub Pages serves it from `main` at the repo root, so it must stay at that path. It states *verified* status only — if a number appears there, a command must produce it.
+- `docs/wiki/` explains the workflow for reviewers. It points at evidence and doesn't copy numbers it can't stand behind;
+  when a test count changes, update it there too.
+- CI is `ci.yml` calling the reusable `python-project.yml`; a new project needs a job there (`test_ci_contract.py` enforces it).
 - One state file: `STATE.md` at the root. Don't create per-project state files.
 
 ## Keeping the dashboard honest

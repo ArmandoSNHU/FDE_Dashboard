@@ -43,6 +43,7 @@ SUITE_LABELS = {
     "test_untrusted_content": ("untrusted", "Hostile text is stripped, capped, labelled"),
     "test_injection_end_to_end": ("injection", "Injection can't reach a tool it wasn't granted"),
     "test_no_secrets_committed": ("secrets", "No credential shape in any tracked file"),
+    "test_ci_contract": ("ci", "CI covers every project through one reusable workflow"),
 }
 
 # One representative failure per kind, phrased as the real connectors phrase them.
