@@ -77,7 +77,7 @@ in the mock and handled by a test in the sync. Two of them contradict the custom
 | Q1 | Duplicate IDs | "`wo_id` is unique" (**false**) | `wo_id` restarts per region after a 2019 migration; the real key is `(region, wo_id)` |
 | Q2 | Mixed time zones | "All timestamps are UTC" (**false**) | The API returns site-local time without an offset; the CSV export is UTC |
 | Q3 | Status code drift | Data dictionary lists `O, A, C` | `C` meant *Cancelled* before 2024-07-01 and *Closed* after; code `H` (on hold) exists and isn't documented |
-| Q4 | Paging skips | Offset paging, "stable ordering" | Records created during a paged read shift the offsets, so some are silently skipped |
+| Q4 | Unstable paging | Offset paging, "stable ordering" | Newest-first offset paging: records created during a read push the rest down a page, so the read returns duplicates at page boundaries and silently misses the new records |
 | Q5 | Source disagreement | — | For some records the CSV and API disagree on `priority`; the CSV is right (ADR-0003) |
 
 ## 6. Architecture
@@ -137,7 +137,7 @@ Project 01's tables are never altered. Incidents get `customer = 'northwind'` an
 | Situation | Behaviour |
 |---|---|
 | API 5xx / timeout | Up to 3 retries with exponential backoff; then the run is `partial` and records missing from the API are loaded from the CSV if present, else listed |
-| Paging skipped records (Q4) | Found by reconciling against the CSV; loaded from the CSV and flagged `csv_only` in the report |
+| Paging duplicates and misses (Q4) | Duplicates collapse on the record key; missed records are found by reconciling against the CSV, loaded from it and flagged `csv_only` |
 | CSV and API disagree (Q5) | The CSV wins, per ADR-0003; each conflict is listed in the report for a human |
 | Unknown status code or unparseable date | Record rejected with a reason, shown in the report, never loaded with a guessed value |
 | DB locked / unavailable | The whole transaction rolls back; the run is `failed` and nothing is half-written |
