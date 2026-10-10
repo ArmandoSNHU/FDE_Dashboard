@@ -63,8 +63,9 @@ def test_q2_api_times_are_site_local_and_csv_times_are_utc(woms):
 
 def test_q3_status_codes_change_meaning_on_2024_07_01(woms):
     rows = csv_rows(woms)
-    before = {r["status"] for r in rows if r["opened_at"] < "2024-07-01"}
-    after = {r["status"] for r in rows if r["opened_at"] >= "2024-07-01"}
+    change = "2024-07-01T04:00:00Z"  # midnight in New York, where Northwind changed the codes
+    before = {r["status"] for r in rows if r["opened_at"] < change}
+    after = {r["status"] for r in rows if r["opened_at"] >= change}
     assert "D" in before and "X" not in before  # old codes: D done, C cancelled
     assert "X" in after and "D" not in after  # new codes: C closed, X cancelled
     assert "C" in before and "C" in after

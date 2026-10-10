@@ -20,7 +20,7 @@ import csv
 import io
 import random
 from dataclasses import dataclass, field
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -29,7 +29,8 @@ from fde_sync.trades import REGION_BY_BOROUGH, TIMEZONE_BY_REGION, TRADE_BY_COMP
 # 311 timestamps are New York local time.
 SOURCE_TZ = ZoneInfo("America/New_York")
 EXPORT_AT = datetime(2024, 7, 15, 6, 0, tzinfo=timezone.utc)
-CODE_CHANGE = date(2024, 7, 1)
+# Q3: the codes changed at midnight at Northwind HQ, one instant for every region.
+CODE_CHANGE_AT = datetime(2024, 7, 1, tzinfo=ZoneInfo("America/New_York"))
 FIELDS = ["region", "wo_id", "opened_at", "status", "priority", "trade", "site", "description"]
 
 CANCELLED_SHARE = 0.05
@@ -56,7 +57,7 @@ def _priority(complaint: str, descriptor: str) -> str:
 
 
 def _status(opened_local: datetime, closed_local: datetime | None, rng: random.Random) -> str:
-    old_codes = opened_local.date() < CODE_CHANGE
+    old_codes = opened_local < CODE_CHANGE_AT
     if rng.random() < CANCELLED_SHARE:
         return "C" if old_codes else "X"
     if closed_local is not None and closed_local.astimezone(timezone.utc) <= EXPORT_AT:
