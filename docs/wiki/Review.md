@@ -88,7 +88,7 @@ first push is the real test. That push is approval-gated, so this stays at a loc
 | 3 | medium | **Live integrations are untested.** Every GitHub and Telegram path runs against a mocked transport. | One read-only run against the real GitHub API with a fine-grained token, recorded as evidence (approval-gated) |
 | 4 | medium | **Nothing drains the alert outbox.** A failed alert is stored safely but never redelivered. | Retry worker with backoff and an attempts column; the outbox table already exists |
 | 5 | low | **No audit log of tool calls.** Both ADRs name it as the next thing to build. | Append-only log of role, tool, args hash, result kind |
-| 6 | low | **The eval gate leaves 0.6 points of headroom** (94% vs 94.6%). One new honest case could fail CI. | Intentional ratchet. When adding cases, update the threshold and the README in the same commit |
+| 6 | low | **The eval gate leaves little headroom** (94% vs 95.3% after the northwind cases). One new honest case could fail CI. | Intentional ratchet. When adding cases, update the threshold and the README in the same commit |
 | 7 | low | **The deploy job runs the suite a third time** (via the generator). | Accept it: the published numbers have to come from the commit being published. Revisit if CI time matters |
 | 8 | info | **No score from a real model.** `LocalModelAgent` is unit-tested but has never been run live. | Run a local ~7B model once and publish it with the model, quantisation and temperature |
 

@@ -31,7 +31,7 @@ week, or someone else) checks the repo still reproduces before they change anyth
 ```powershell
 cd projects/01-mcp-server
 uv sync                                  # environment from uv.lock
-uv run pytest -q                         # 181 passed
+uv run pytest -q                         # 185 passed
 uv run python scripts/demo.py            # scripted incident, ends with "Demo complete"
 uv run python scripts/smoke_stdio.py     # real server over stdio, one per role: what each can see and call
 uv run fde-mcp                           # run the server (stdio), role from FDE_MCP_ROLE
@@ -48,7 +48,22 @@ uv run fde-evals --agent v2              # one agent
 uv run fde-evals --check                 # the CI gate: exit 1 under 94% or on any unsafe decision
 ```
 
-### 4. Regenerate the dashboard
+### 4. Project 03: the legacy sync
+
+```powershell
+cd ../03-legacy-sync
+uv sync
+uv run pytest -q                         # 72 passed
+uv run python scripts/demo.py            # dry-run -> apply -> re-run (0 writes) -> fde-mcp reads northwind
+uv run fde-sync --db path/to/ops.db      # dry run by default: shows what would change, writes nothing
+uv run fde-sync --db path/to/ops.db --apply --report report.md
+uv run python scripts/record_run.py      # the numbers the dashboard shows, from a real run
+```
+
+Exit codes are for a scheduler: `0` ok, `3` partial (the API read was incomplete but the export still
+loaded), `1` failed (nothing written).
+
+### 5. Regenerate the dashboard
 
 ```powershell
 cd ../01-mcp-server
@@ -59,21 +74,23 @@ The generator builds the real server for each role, runs the real error guard fo
 runs the real sanitiser over a real attack payload, and reads the counts from an actual JUnit report.
 I never edit `dashboard-data.json` or a number in `index.html` by hand.
 
-### 5. Update the docs together, then commit
+### 6. Update the docs together, then commit
 
 If a status changed, `index.html`, the root `README.md` table and `STATE.md` change in the same commit.
-The commit message says what changed, why, and the verification output (`181 passed`, `94.6% / 0 unsafe`).
+The commit message says what changed, why, and the verification output (`185 passed`, `95.3% / 0 unsafe`).
 
 ## Local command ↔ CI step
 
 | Local command | CI job / step | Where it's defined |
 |---|---|---|
 | `uv sync` (lockfile-exact) | `setup-uv-project` → `uv sync --frozen` | `.github/actions/setup-uv-project/action.yml` |
-| `uv run pytest -q` | `Run the test suite`, both projects, both OSes | `.github/workflows/python-project.yml` |
+| `uv run pytest -q` | `Run the test suite`, every project, both OSes | `.github/workflows/python-project.yml` |
 | `uv run python scripts/demo.py` | `01 mcp-server` → `checks` | `.github/workflows/ci.yml` |
 | `uv run python scripts/smoke_stdio.py` | `01 mcp-server` → `checks` | `.github/workflows/ci.yml` |
 | demo on a legacy code page | `Re-run on a legacy code page` (Windows, `PYTHONIOENCODING=cp1252`) | `python-project.yml`, input from `ci.yml` |
 | `uv run fde-evals --check` | `02 eval-harness` → `checks` | `.github/workflows/ci.yml` |
+| `uv run python scripts/demo.py` (03), also on cp1252 | `03 legacy-sync` → `checks`, `legacy-console-check` | `.github/workflows/ci.yml` |
+| `uv run python scripts/record_run.py` (03) | `publish dashboard`, before the data is regenerated | `.github/workflows/ci.yml` |
 | `uv run fde-evals` + `build_dashboard_data.py` | `publish dashboard` (main only, after every project passes) | `.github/workflows/ci.yml` |
 
 ## Verifying like a reviewer

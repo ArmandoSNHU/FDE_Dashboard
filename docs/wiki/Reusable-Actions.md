@@ -18,8 +18,11 @@ ci.yml
  ├─ 02 eval-harness ─uses──> python-project.yml ──uses──> setup-uv-project
  │                            ├─ ubuntu-latest:  pytest, fde-evals --check
  │                            └─ windows-latest: pytest, fde-evals --check
- └─ publish dashboard  (needs both, main only)
-      setup-uv-project x2 -> fde-evals -> build_dashboard_data.py -> deploy to Pages
+ ├─ 03 legacy-sync ──uses──> python-project.yml ──uses──> setup-uv-project
+ │                            ├─ ubuntu-latest:  pytest, demo
+ │                            └─ windows-latest: pytest, demo, demo on cp1252
+ └─ publish dashboard  (needs all three, main only)
+      setup-uv-project x3 -> record_run.py -> fde-evals -> build_dashboard_data.py -> deploy to Pages
 ```
 
 ## 1. Composite action: `setup-uv-project`
@@ -41,7 +44,7 @@ What it does, and why:
   directly again.
 
 Why a composite action and not a reusable workflow? The deploy job needs the same setup *in the middle of
-its own steps* (set up both projects, then score, generate and publish). A reusable workflow is a whole
+its own steps* (set up the projects, then record, score, generate and publish). A reusable workflow is a whole
 job and can't be dropped in as a step. A composite action can.
 
 ## 2. Reusable workflow: `python-project.yml`
@@ -80,18 +83,20 @@ Each project is a short block:
       checks: uv run fde-evals --check
 ```
 
-`publish dashboard` declares `needs: [mcp-server, evals]` and runs only on `main`. It sets up both projects,
+`publish dashboard` declares `needs: [mcp-server, evals, legacy-sync]` and runs only on `main`. It sets up all three projects, re-records the sync run,
 re-scores the evals so the published numbers come from *this* commit, regenerates `dashboard-data.json`
 from a real test run, and deploys to GitHub Pages.
 
-## Adding project 03
+## Adding a project
 
-1. Create `projects/03-<slug>/` with a `pyproject.toml` and a committed `uv.lock`.
+Project 03 was added exactly this way: one job in `ci.yml`, one name in `deploy.needs`.
+
+1. Create `projects/<NN>-<slug>/` with a `pyproject.toml` and a committed `uv.lock`.
 2. Add a 4–6 line job to `ci.yml` that uses `python-project.yml` with its `project-dir`.
 3. Add the job name to `deploy.needs`.
 
 Skip step 2 and project 01's suite fails with
-`these projects have a pyproject.toml but no CI job: ['projects/03-...']`. Skip step 3 and
+`these projects have a pyproject.toml but no CI job: ['projects/04-...']`. Skip step 3 and
 `test_publishing_waits_for_every_project` fails. You can't forget either one quietly.
 
 ## The contract that holds it together

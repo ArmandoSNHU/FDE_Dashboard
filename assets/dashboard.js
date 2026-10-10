@@ -40,6 +40,7 @@ function render() {
   renderInjection();
   renderSuites();
   renderEvals();
+  renderSync();
 }
 
 /* ---------- header status ---------- */
@@ -256,6 +257,16 @@ function renderEvals() {
     return row;
   });
   $("#eval-rows").replaceChildren(...rows);
+}
+
+/* ---------- legacy sync (project 03) ---------- */
+
+function renderSync() {
+  const sync = state.data.sync;
+  if (!sync) return;
+  $("#sync-figures").textContent =
+    `fde-sync · ${sync.loaded} of ${sync.source_records} work orders loaded · ${sync.rejected} rejected · ` +
+    `${sync.missed_by_api} missed by the API, recovered · re-run writes ${sync.rerun_writes}`;
 }
 
 /* ---------- test suite bars ---------- */

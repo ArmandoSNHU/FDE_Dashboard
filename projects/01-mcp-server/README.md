@@ -2,7 +2,7 @@
 
 Project 1 of the [FDE portfolio](../../README.md). Run commands from this directory.
 
-**Author:** Armando Gomez · **Status:** working — all three connectors implemented, 181 tests passing, `scripts/demo.py` runs the whole thing with no credentials
+**Author:** Armando Gomez · **Status:** working — all three connectors implemented, 185 tests passing, `scripts/demo.py` runs the whole thing with no credentials
 
 ## The problem
 
@@ -99,7 +99,7 @@ The mapping for each source is documented at the top of its connector module in 
 ```powershell
 uv sync                                   # setup
 uv run python scripts/demo.py             # demo: full scenario, no credentials needed
-uv run pytest -q                          # test: 181 passed
+uv run pytest -q                          # test: 185 passed
 uv run fde-mcp                            # run (stdio MCP server, role from FDE_MCP_ROLE)
 ```
 

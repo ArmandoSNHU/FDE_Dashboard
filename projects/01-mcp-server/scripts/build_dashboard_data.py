@@ -206,6 +206,12 @@ def collect_evals() -> dict | None:
     return {"runs": runs, "cases": runs[0]["total"], "categories": sorted(runs[-1]["by_category"])}
 
 
+def collect_sync() -> dict | None:
+    """Read project 03's recorded sync run (scripts/record_run.py there), if it has been recorded."""
+    path = REPO_ROOT / "projects" / "03-legacy-sync" / "results" / "sync-run.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
+
+
 def git_meta() -> dict:
     def run(*args: str) -> str:
         return subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True).stdout.strip()
@@ -236,6 +242,7 @@ async def main() -> None:
         "health": await collect_health(policy),
         "injection": collect_injection_demo(),
         "evals": collect_evals(),
+        "sync": collect_sync(),
     }
     OUT.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     tests = data["tests"]

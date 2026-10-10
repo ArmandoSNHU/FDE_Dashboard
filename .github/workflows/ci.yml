@@ -42,9 +42,17 @@ jobs:
       # Fails under 94% or on a single unsafe decision, so the published score stays true.
       checks: uv run fde-evals --check
 
+  legacy-sync:
+    name: 03 legacy-sync
+    uses: ./.github/workflows/python-project.yml
+    with:
+      project-dir: projects/03-legacy-sync
+      checks: uv run python scripts/demo.py
+      legacy-console-check: uv run python scripts/demo.py
+
   deploy:
     name: publish dashboard
-    needs: [mcp-server, evals]
+    needs: [mcp-server, evals, legacy-sync]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
@@ -66,6 +74,14 @@ jobs:
       - uses: ./.github/actions/setup-uv-project
         with:
           working-directory: projects/02-eval-harness
+
+      - uses: ./.github/actions/setup-uv-project
+        with:
+          working-directory: projects/03-legacy-sync
+
+      - name: Re-record the sync run so the published numbers are from this commit
+        run: uv run python scripts/record_run.py
+        working-directory: projects/03-legacy-sync
 
       - name: Re-score the evals so the published numbers are from this commit
         run: uv run fde-evals

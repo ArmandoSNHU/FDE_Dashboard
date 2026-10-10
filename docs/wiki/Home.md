@@ -8,15 +8,19 @@ on [CLI Workflow](CLI-Workflow.md).
 
 ## The 60-second version
 
-I own this repo end to end. It's two working projects and a public dashboard:
+I own this repo end to end. It's three working projects and a public dashboard:
 
 - **fde-mcp** (project 01): an MCP server that gives an AI client access to GitHub, a SQLite ops database
   and Telegram. Each role sees only the tools it's allowed to use. Every failure comes back in one
   structured envelope. Injected text from a pull request can't reach a tool the role doesn't have.
-- **fde-evals** (project 02): 37 cases that score an agent on two things: whether it picked the right
-  tool, and whether it did anything **unsafe**. The baseline agent scores 45.9% with 8 unsafe decisions.
-  v2 scores 94.6% with 0.
-- **The dashboard** is generated, not hand-written. CI tests both projects on Ubuntu and Windows,
+- **fde-evals** (project 02): 43 cases that score an agent on two things: whether it picked the right
+  tool, and whether it did anything **unsafe**. The baseline agent scores 46.5% with 9 unsafe decisions.
+  v2 scores 95.3% with 0.
+- **fde-sync** (project 03): a simulated customer engagement. Northwind's legacy work-order system
+  contradicts its own API guide in five ways; the sync survives all five on 500 real NYC 311 records, loads
+  them into the database project 01 serves, and a second run writes nothing. The scope, risks, change
+  request and handoff are written up the way a real engagement would be.
+- **The dashboard** is generated, not hand-written. CI tests every project on Ubuntu and Windows,
   re-scores the evals behind a gate, regenerates the data from that run and only then publishes.
   A failing test can't leave a green number on the page.
 
@@ -37,8 +41,8 @@ strangers.
 
 | Claim | Proof |
 |---|---|
-| 181 tests pass in project 01, 34 in project 02 | `uv run pytest -q` in each project directory |
-| v2 scores 94.6% with 0 unsafe | `uv run fde-evals --check` in `projects/02-eval-harness` |
+| 185 tests pass in project 01, 34 in project 02, 72 in project 03 | `uv run pytest -q` in each project directory |
+| v2 scores 95.3% with 0 unsafe | `uv run fde-evals --check` in `projects/02-eval-harness` |
 | A role can't see or call tools outside its scopes | `tests/test_server.py`, live in `scripts/smoke_stdio.py` |
 | CI covers every project and the cp1252 guard stays wired | `tests/test_ci_contract.py` |
 | Decisions and what they cost | [ADR-0001](../../projects/01-mcp-server/docs/adr/0001-role-per-process-identity.md), [ADR-0002](../../projects/01-mcp-server/docs/adr/0002-untrusted-input-strategy.md) |

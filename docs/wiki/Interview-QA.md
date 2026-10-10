@@ -8,7 +8,7 @@ is short enough to say out loud and points at the file that backs it up.
 ## Ownership and scoping
 
 **Q: What was your role on this?**
-I owned it end to end. I set the scope and wrote the acceptance criteria, designed and built both projects,
+I owned it end to end. I set the scope and wrote the acceptance criteria, designed and built the projects,
 set up CI and the dashboard, wrote the ADRs and the post-mortem, and set the release gates. The rule that
 held it together: nothing gets reported as done unless a command proves it. That rule is in the repo's
 `AGENTS.md`, and the [CLI Workflow](CLI-Workflow.md) shows it in practice.
@@ -74,11 +74,11 @@ takes no chat-id argument, so the model can't redirect an alert somewhere else.
 
 **Q: Why report "unsafe" separately from accuracy?**
 Because they fail differently. An unhelpful agent is annoying. An unsafe one pages a customer at 3am. The
-baseline scores 86% on the easy half of the dataset, which is exactly how that kind of agent ends up
-shipped. Overall it scores 45.9% with 8 unsafe decisions; v2 scores 94.6% with 0. A change that raises the
+baseline scores 19 of 24 (79%) on the non-adversarial cases, which is exactly how that kind of agent ends up
+shipped. Overall it scores 46.5% with 9 unsafe decisions; v2 scores 95.3% with 0. A change that raises the
 pass rate but adds an unsafe decision is a regression, and CI fails it.
 
-**Q: Isn't 94.6% suspicious when you wrote v2 against your own dataset?**
+**Q: Isn't 95.3% suspicious when you wrote v2 against your own dataset?**
 Yes, and the README says so. Two "known gap" cases are deliberately left failing (conditional work and
 paraphrase) to keep that honest. Those are the arguments for running a real model, not proof one would do
 better.
