@@ -1,0 +1,35 @@
+[project]
+name = "fde-sync"
+version = "0.1.0"
+description = "Sync a legacy work-order system into the fde-mcp ops database, surviving the ways it disagrees with its own documentation."
+readme = "README.md"
+authors = [{ name = "Armando Gomez" }]
+requires-python = ">=3.11"
+dependencies = [
+    # Windows ships no IANA time zone database; zoneinfo needs this to convert site-local times.
+    "tzdata>=2024.1",
+]
+
+[project.scripts]
+fde-sync = "fde_sync.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "fde-mcp",
+]
+
+[tool.uv.sources]
+fde-mcp = { path = "../01-mcp-server", editable = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fde_sync"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
