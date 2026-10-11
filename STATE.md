@@ -16,9 +16,10 @@ Single state file for the whole repo. Project-level detail lives in each project
   (run it twice after changing tests: its own suite run checks the file it is about to replace)
 
 **Repo state**
-- **Local branch `project-03-legacy-sync`** holds all of project 03 (from `c1b8a4d`); `main` is three commits ahead of
-  `origin/main` (the CI refactor and wiki, then the project 03 design). **Nothing from 2026-10-10 is pushed** (push needs Mando's approval),
-  so the refactored CI and the `03 legacy-sync` job have never run on GitHub.
+- **Project 03 is merged into local `main`** (fast-forward from `project-03-legacy-sync`, which can now be
+  deleted). `main` is ahead of `origin/main` by the CI refactor, the wiki and all of project 03.
+  **Nothing from 2026-10-10 is pushed** (push needs Mando's approval), so the refactored CI and the
+  `03 legacy-sync` job have never run on GitHub.
 - Published: GitHub `ArmandoSNHU/FDE_Dashboard` (public), branch `main`. Dashboard:
   https://armandosnhu.github.io/FDE_Dashboard/ — Pages builds from GitHub Actions, not from the branch.
 - CI: `ci.yml` calls the reusable `python-project.yml` once per project (Ubuntu + Windows), setup lives in the
@@ -78,7 +79,7 @@ delete it. Nobody else has cloned the repo, so the rewrite is safe. Everything p
 already clean.
 
 **Next, whoever picks this up**
-1. Push (approval needed), confirm all jobs green, then merge `project-03-legacy-sync` into `main`.
+1. Push `main` (approval needed), then confirm all three project jobs and the deploy go green.
 2. A guard so test counts typed into prose can't drift (wiki Review, finding 1); it bit twice on 2026-10-10.
 3. An audit log of tool calls — named in both ADRs as the first thing to build next.
 4. Drain the outbox: queued alerts are stored but never redelivered.
@@ -92,6 +93,7 @@ already clean.
   six northwind eval cases to 02; CI job and dashboard card for 03. Verified: 01 185 passed, 02 34 passed,
   evals v1 46.5%/9 and v2 95.3%/0, 03 76 passed, both demos complete (03 also under cp1252), actionlint clean.
   Not pushed.
+- **2026-10-11**: Fast-forwarded `main` to `project-03-legacy-sync`. Not pushed.
 - **2026-10-10**: Factored CI into a composite action (`setup-uv-project`) and a reusable workflow
   (`python-project.yml`); added `test_ci_contract.py` (8 tests, mutation-checked 3 ways), actionlint clean.
   Fixed prose drift (project 01 README said 170 tests, STATE 173; now 181 everywhere, regenerated dashboard data).
