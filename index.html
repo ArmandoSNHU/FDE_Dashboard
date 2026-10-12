@@ -52,8 +52,8 @@
     </div>
     <div role="listitem">
       <span class="label">Portfolio</span>
-      <span class="big">2 <small>/ 5 built</small></span>
-      <span class="note">2 write-ups published, 1 project not started</span>
+      <span class="big">5 <small>/ 5 built</small></span>
+      <span class="note">3 projects, an ADR set and a post-mortem published</span>
     </div>
   </div>
 
@@ -145,7 +145,7 @@
         <p>A tool-calling agent fails in two ways, and a single pass rate hides the difference. Being <em>unhelpful</em> — asking when it should act — is recoverable. Being <em>unsafe</em> — calling a tool the role forbids, or obeying an instruction hidden in a pull request title — pages a customer at 3am.</p>
         <p>So both are scored, and a change that lifts the pass rate while adding an unsafe decision fails CI.</p>
         <h3>What the gap is made of</h3>
-        <p>All eight of the baseline's unsafe decisions are the two that matter: five where it obeyed text written by a stranger, three where it called a tool its role never had. It still scores well on the easy half — which is exactly why that kind of agent ships.</p>
+        <p>Every one of the baseline's unsafe decisions is one of the two that matter: obeying text written by a stranger, or calling a tool its role never had. It still scores well on the non-adversarial cases — which is exactly why that kind of agent ships.</p>
         <p>Two cases stay red on purpose: conditional work it can't sequence, and a paraphrase that shares no keyword with the tool. A dataset scoring 100% has stopped being useful.</p>
       </div>
     </div>
@@ -181,8 +181,8 @@
       <article class="project">
         <div>
           <h3>Evaluation framework for a real use case</h3>
-          <p class="desc">37 cases over reads, writes, refusals, ambiguity, injection and error handling — scored for safety as well as accuracy.</p>
-          <p class="src mono">fde-evals · results committed · 45.9% -> 94.6%, 8 unsafe -> 0</p>
+          <p class="desc">Cases over reads, writes, refusals, ambiguity, injection and error handling — scored for safety as well as accuracy. Results above.</p>
+          <p class="src mono">fde-evals · results committed</p>
         </div>
         <div>
           <div class="stages" aria-label="Stage 5 of 5: publishing"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="now"></span></div>
@@ -193,15 +193,15 @@
 
       <article class="project">
         <div>
-          <h3>Enterprise integration with real constraints</h3>
-          <p class="desc">Legacy system or inconsistent data; document what broke, the undocumented behaviour found, and the stakeholder impact.</p>
-          <p class="src mono">System not chosen yet</p>
+          <h3>Enterprise integration: a legacy work-order sync</h3>
+          <p class="desc">A simulated customer engagement on real NYC 311 data: a legacy system that contradicts its own API guide, synced into the ops DB the MCP server reads, with the engagement documents to match.</p>
+          <p class="src mono" id="sync-figures">fde-sync · run not recorded</p>
         </div>
         <div>
-          <div class="stages" aria-label="Not started"><span></span><span></span><span></span><span></span><span></span></div>
-          <p class="stage-caption">Not started</p>
+          <div class="stages" aria-label="Stage 5 of 5: publishing"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="now"></span></div>
+          <p class="stage-caption">Sync, demo, end-to-end tests, ADR-0003 and the engagement documents: scope, RAID, status, CR-001, handoff.</p>
         </div>
-        <span class="state pill idle">Queued</span>
+        <span class="state pill active">Publishing</span>
       </article>
 
       <article class="project">
@@ -261,7 +261,7 @@
       <div class="check">
         <h3>A real eval with committed results</h3>
         <span class="pill ok">Met</span>
-        <p>37 cases with results committed as JSON and Markdown. Scored for unsafe decisions, not just accuracy, and two cases are left failing on purpose.</p>
+        <p>Cases and results committed as JSON and Markdown. Scored for unsafe decisions, not just accuracy, and two cases are left failing on purpose.</p>
       </div>
       <div class="check">
         <h3>Decisions can be defended in writing</h3>

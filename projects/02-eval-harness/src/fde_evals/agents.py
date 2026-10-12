@@ -37,6 +37,10 @@ KEYWORDS: dict[str, tuple[str, ...]] = {
     "github_list_open_prs": ("pull request", "pull requests", "pr", "prs", "review queue"),
     "github_get_issue": ("issue", "issues", "ticket", "tickets", "bug report"),
     "server_health": ("health", "status", "configured", "working"),
+    # Last, so v1's first-match order is unchanged for every earlier case. "Work order" is
+    # the customer's own word for these records (project 03), and it can't collide with
+    # db_log_incident's "incident".
+    "db_recent_incidents": ("work order", "work orders", "open work", "incident history"),
 }
 
 REFUSAL_TOPICS = (
@@ -153,7 +157,7 @@ class ScopeAwareAgent:
         if tool.startswith("github_"):
             return not re.search(r"[\w.-]+/[\w.-]+", request)
         if tool.startswith("db_"):
-            return not re.search(r"\b(acme|globex|initech|customer [a-z]+)\b", request, re.I)
+            return not re.search(r"\b(acme|globex|initech|northwind|customer [a-z]+)\b", request, re.I)
         return False
 
 

@@ -92,6 +92,14 @@ class TestGeneratedData:
             assert 0 <= run["pass_rate"] <= 100
             assert sum(c["total"] for c in run["by_category"].values()) == run["total"]
 
+    def test_sync_numbers_come_from_project_03s_recorded_run(self):
+        """Project 03's card shows only what scripts/record_run.py produced, and what it claims holds."""
+        recorded = json.loads((REPO_ROOT / "projects" / "03-legacy-sync" / "results" / "sync-run.json").read_text(encoding="utf-8"))
+        sync = data().get("sync")
+        assert sync == recorded, "dashboard-data.json is stale against project 03's results; regenerate it"
+        assert sync["dry_run_writes"] == 0 and sync["rerun_writes"] == 0
+        assert sync["loaded"] + sync["skipped_cancelled"] + sync["rejected"] == sync["source_records"]
+
     def test_the_current_agent_beats_the_baseline_and_is_safe(self):
         """The dashboard says so; if it stops being true the page must fail, not mislead."""
         runs = data()["evals"]["runs"]

@@ -12,11 +12,17 @@ Each project owns its own README, tests, and docs; **each project directory has 
 - `projects/01-mcp-server/` — the MCP server (fde-mcp), plus its ADRs and post-mortem under `docs/`.
 - `projects/02-eval-harness/` — the eval dataset and scorer (fde-evals). Depends on project 01 by path;
   its committed `results/` feed the dashboard, so re-run `uv run fde-evals` after changing either project.
+- `projects/03-legacy-sync/` — the legacy work-order sync (fde-sync) and its simulated customer engagement under
+  `engagement/`. Writes into project 01's ops DB schema; its `results/sync-run.json` feeds the dashboard, so
+  re-run `uv run python scripts/record_run.py` after changing the sync or its data.
 
 ## Layout rules
 - Code lives under `projects/<NN>-<slug>/`. Never add source at the repo root.
 - Each project is independently runnable: its own `pyproject.toml` and venv, commands run from its directory.
 - `index.html` at the repo root is the dashboard: static, hand-written, no build step. GitHub Pages serves it from `main` at the repo root, so it must stay at that path. It states *verified* status only — if a number appears there, a command must produce it.
+- `docs/wiki/` explains the workflow for reviewers. It points at evidence and doesn't copy numbers it can't stand behind;
+  when a test count changes, update it there too.
+- CI is `ci.yml` calling the reusable `python-project.yml`; a new project needs a job there (`test_ci_contract.py` enforces it).
 - One state file: `STATE.md` at the root. Don't create per-project state files.
 
 ## Keeping the dashboard honest

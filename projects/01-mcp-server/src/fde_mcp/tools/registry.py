@@ -32,6 +32,7 @@ TOOL_SPECS: tuple[ToolSpec, ...] = (
     ToolSpec("github_list_open_prs", "github:read", "github", "List open pull requests for an owner/name repo.", True),
     ToolSpec("github_get_issue", "github:read", "github", "Fetch one GitHub issue by number.", True),
     ToolSpec("db_recent_deployments", "db:read", "sqlite", "Recent deployments for a customer from the ops DB.", True),
+    ToolSpec("db_recent_incidents", "db:read", "sqlite", "Recent incidents for a customer from the ops DB.", True),
     ToolSpec("db_log_incident", "db:write", "sqlite", "Record an incident for a customer in the ops DB.", False),
     ToolSpec("telegram_send_alert", "telegram:notify", "telegram", "Send an alert to the on-call Telegram chat.", False),
 )
@@ -63,6 +64,10 @@ def build_handlers(
     async def db_recent_deployments(customer: str, limit: int = 20) -> dict:
         rows = await sqlite.recent_deployments(customer, limit)
         return {"customer": customer, "deployments": rows, "provenance": PROVENANCE_NOTE}
+
+    async def db_recent_incidents(customer: str, limit: int = 20) -> dict:
+        rows = await sqlite.recent_incidents(customer, limit)
+        return {"customer": customer, "incidents": rows, "provenance": PROVENANCE_NOTE}
 
     async def db_log_incident(customer: str, summary: str, severity: str) -> dict:
         return await sqlite.log_incident(customer, summary, severity)
@@ -96,6 +101,7 @@ def build_handlers(
         "github_list_open_prs": github_list_open_prs,
         "github_get_issue": github_get_issue,
         "db_recent_deployments": db_recent_deployments,
+        "db_recent_incidents": db_recent_incidents,
         "db_log_incident": db_log_incident,
         "telegram_send_alert": telegram_send_alert,
     }

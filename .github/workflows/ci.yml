@@ -1,8 +1,14 @@
 name: CI
 
 # The dashboard claims "N tests passing". This workflow is what makes that claim true:
-# it runs the suite on two operating systems, regenerates the dashboard's data from that
-# run, and only then publishes the site.
+# it tests every project on two operating systems through one reusable workflow,
+# regenerates the dashboard's data from a real run, and only then publishes the site.
+#
+#   python-project.yml           reusable: one project, Ubuntu + Windows, tests + checks
+#   actions/setup-uv-project     composite: install uv, sync from the lockfile
+#
+# tests/test_ci_contract.py (project 01) pins this shape: every project has a job here,
+# uv is pinned in one place, the cp1252 guard stays wired, and deploy waits for everything.
 
 on:
   push:
@@ -18,74 +24,35 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
-    name: tests (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        working-directory: projects/01-mcp-server
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-        with:
-          enable-cache: true
-
-      - name: Install dependencies from the lockfile
-        run: uv sync --frozen
-
-      - name: Run the test suite
-        run: uv run pytest -q
-
-      - name: Run the end-to-end demo
-        run: uv run python scripts/demo.py
-
-      # Regression guard: the demo once crashed on a console that couldn't encode its output.
-      - name: Run the demo on a legacy code page
-        if: runner.os == 'Windows'
-        run: uv run python scripts/demo.py
-        env:
-          PYTHONIOENCODING: cp1252
-
-      - name: Check role filtering over a real stdio session
-        run: uv run python scripts/smoke_stdio.py
+  mcp-server:
+    name: 01 mcp-server
+    uses: ./.github/workflows/python-project.yml
+    with:
+      project-dir: projects/01-mcp-server
+      checks: |
+        uv run python scripts/demo.py
+        uv run python scripts/smoke_stdio.py
+      legacy-console-check: uv run python scripts/demo.py
 
   evals:
-    name: evals (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        working-directory: projects/02-eval-harness
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-        with:
-          enable-cache: true
-
-      - name: Install dependencies from the lockfile
-        run: uv sync --frozen
-
-      - name: Test the harness and the dataset
-        run: uv run pytest -q
-
+    name: 02 eval-harness
+    uses: ./.github/workflows/python-project.yml
+    with:
+      project-dir: projects/02-eval-harness
       # Fails under 94% or on a single unsafe decision, so the published score stays true.
-      - name: Score the agents against the tool surface
-        run: uv run fde-evals --check
+      checks: uv run fde-evals --check
+
+  legacy-sync:
+    name: 03 legacy-sync
+    uses: ./.github/workflows/python-project.yml
+    with:
+      project-dir: projects/03-legacy-sync
+      checks: uv run python scripts/demo.py
+      legacy-console-check: uv run python scripts/demo.py
 
   deploy:
     name: publish dashboard
-    needs: [test, evals]
+    needs: [mcp-server, evals, legacy-sync]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
@@ -100,19 +67,24 @@ jobs:
         with:
           fetch-depth: 0 # the generator reports the commit count
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
+      - uses: ./.github/actions/setup-uv-project
         with:
-          enable-cache: true
+          working-directory: projects/01-mcp-server
 
-      - name: Install dependencies from the lockfile
-        run: uv sync --frozen
-        working-directory: projects/01-mcp-server
+      - uses: ./.github/actions/setup-uv-project
+        with:
+          working-directory: projects/02-eval-harness
+
+      - uses: ./.github/actions/setup-uv-project
+        with:
+          working-directory: projects/03-legacy-sync
+
+      - name: Re-record the sync run so the published numbers are from this commit
+        run: uv run python scripts/record_run.py
+        working-directory: projects/03-legacy-sync
 
       - name: Re-score the evals so the published numbers are from this commit
-        run: |
-          uv sync --frozen
-          uv run fde-evals
+        run: uv run fde-evals
         working-directory: projects/02-eval-harness
 
       - name: Generate dashboard data from a real test run

@@ -1,0 +1,16 @@
+{
+  "source_records": 500,
+  "loaded": 479,
+  "skipped_cancelled": 18,
+  "rejected": 3,
+  "rejected_reasons": [
+    "unknown status 'Z'",
+    "unknown status 'Z'",
+    "unparseable opened_at '0000-00-00T00:00:00Z'"
+  ],
+  "missed_by_api": 6,
+  "conflicts": 20,
+  "dry_run_writes": 0,
+  "rerun_writes": 0,
+  "outcome": "ok"
+}

@@ -30,6 +30,7 @@ from typing import Any, TypeVar
 
 from fde_mcp.connectors.base import Connector, ConnectorStatus
 from fde_mcp.errors import ErrorKind, SourceError
+from fde_mcp.untrusted import clean_text
 
 BUSY_TIMEOUT_MS = 2000
 MAX_LIMIT = 100
@@ -42,6 +43,14 @@ RECENT_DEPLOYMENTS = """
       FROM deployments
      WHERE customer = ?
      ORDER BY deployed_at DESC, id DESC
+     LIMIT ?
+"""
+
+RECENT_INCIDENTS = """
+    SELECT id, customer, summary, severity, created_at
+      FROM incidents
+     WHERE customer = ?
+     ORDER BY created_at DESC, id DESC
      LIMIT ?
 """
 
@@ -69,6 +78,25 @@ class SQLiteConnector(Connector):
         def query() -> list[dict[str, Any]]:
             with self._connect(readonly=True) as conn:
                 return [dict(row) for row in conn.execute(RECENT_DEPLOYMENTS, (customer, limit))]
+
+        return await self._run(query)
+
+    async def recent_incidents(self, customer: str, limit: int = 20) -> list[dict[str, Any]]:
+        """Most recent incidents for one customer, newest first.
+
+        Summaries are written by other systems (a ticket sync, an on-call engineer, a webhook),
+        so they are third-party text and get the same cleaning as a pull request title.
+        """
+        self._require_configured()
+        customer = self._require_text(customer, "customer")
+        limit = self._validate_limit(limit)
+
+        def query() -> list[dict[str, Any]]:
+            with self._connect(readonly=True) as conn:
+                rows = [dict(row) for row in conn.execute(RECENT_INCIDENTS, (customer, limit))]
+            for row in rows:
+                row["summary"] = clean_text(row["summary"], limit=500)
+            return rows
 
         return await self._run(query)
 

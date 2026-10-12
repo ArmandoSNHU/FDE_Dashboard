@@ -1,0 +1,66 @@
+name: Python project
+
+# Reusable workflow: test one project under projects/ on Ubuntu and Windows.
+# ci.yml calls it once per project; tests/test_ci_contract.py fails if a project is left out.
+
+on:
+  workflow_call:
+    inputs:
+      project-dir:
+        description: Project directory, e.g. projects/01-mcp-server.
+        required: true
+        type: string
+      checks:
+        description: Extra commands run after the test suite, one per line. Any failing line fails the job.
+        required: false
+        type: string
+        default: ""
+      legacy-console-check:
+        description: >
+          A command re-run on Windows with PYTHONIOENCODING=cp1252, for scripts a reviewer runs
+          on a console we don't control. Empty to skip.
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        # bash on both runners: -e makes every line of a multi-line check count,
+        # where pwsh would only report the exit code of the last one.
+        shell: bash
+        working-directory: ${{ inputs.project-dir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-uv-project
+        with:
+          working-directory: ${{ inputs.project-dir }}
+
+      - name: Run the test suite
+        run: uv run pytest -q
+
+      # Inputs arrive through env, never interpolated into the script body.
+      - name: Run the project's checks
+        if: inputs.checks != ''
+        env:
+          CHECKS: ${{ inputs.checks }}
+        run: eval "$CHECKS"
+
+      # Regression guard from the 2026-09-15 post-mortem: a demo that only worked in a UTF-8 shell.
+      - name: Re-run on a legacy code page
+        if: runner.os == 'Windows' && inputs.legacy-console-check != ''
+        env:
+          PYTHONIOENCODING: cp1252
+          CHECK: ${{ inputs.legacy-console-check }}
+        run: eval "$CHECK"
